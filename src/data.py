@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 
-def load_data_mlc(path: str = "data/") -> tuple[dict, dict]:
+def load_data_mc(path: str = "data/") -> tuple[dict, dict]:
     """
     Loads the dataset for multiclass classification.
     This function loads the dataset from the specified path and returns the train and test datasets.

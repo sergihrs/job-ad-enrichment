@@ -6,7 +6,8 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
-from src.data import load_data_mlc
+from src.data import load_data_mc
+from peft import LoraConfig, get_peft_model, TaskType
 
 
 def train(file_path: str = "data/", output_dir: str = "./models/distilbert-finetuned"):
@@ -21,18 +22,18 @@ def train(file_path: str = "data/", output_dir: str = "./models/distilbert-finet
         output_dir (str): The directory to save the model checkpoints.
     """
     # Load the dataset
-    train_dataset, test_dataset = load_data_mlc(file_path)
+    train_dataset, test_dataset = load_data_mc(file_path)
 
+    # Tokenize the datasets
     tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
 
     def tokenize_function(examples):
         return tokenizer(examples["text"], padding="max_length", truncation=True)
 
-    # Tokenize the datasets
     train_dataset = train_dataset.map(tokenize_function, batched=True)
     test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-    # Optionally remove the original "text" column if you no longer need it.
+    # Remove the original "text" column
     train_dataset = train_dataset.remove_columns(["text"])
     test_dataset = test_dataset.remove_columns(["text"])
 
@@ -44,11 +45,22 @@ def train(file_path: str = "data/", output_dir: str = "./models/distilbert-finet
     train_labels = train_dataset["labels"]
     num_labels = len(set(train_labels.tolist()))
 
-    # 3. Load the Pretrained Model with a Classification Head
+    # Load the Pretrained Model with a Classification Head
     model = DistilBertForSequenceClassification.from_pretrained(
         "distilbert-base-uncased", num_labels=num_labels
     )
-    # 4. Define Training Arguments
+    # Wrap the model with LoRA
+    lora_config = LoraConfig(
+        task_type=TaskType.SEQ_CLS,  # task type: sequence classification
+        inference_mode=False,  # training mode
+        r=8,  # LoRA rank; higher values allow more flexibility but add more parameters
+        lora_alpha=32,  # scaling factor
+        lora_dropout=0.1,  # dropout applied to LoRA layers to regularize training
+    )
+    # Wrap the original model with PEFT to create a LoRA model.
+    model = get_peft_model(model, lora_config)
+
+    # Define Training Arguments
     training_args = TrainingArguments(
         output_dir=output_dir,  # outdir for checkpoints
         num_train_epochs=3,  # total number of training epochs
@@ -61,7 +73,7 @@ def train(file_path: str = "data/", output_dir: str = "./models/distilbert-finet
         logging_dir="./logs",  # directory for storing logs
         logging_steps=10,  # log every 10 steps
     )
-    # 5. Initialize the Trainer
+    # Initialize the Trainer
     trainer = Trainer(
         model=model,
         args=training_args,
