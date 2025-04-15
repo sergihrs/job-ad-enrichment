@@ -1,6 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 import os
+from datasets import DatasetDict, Dataset
 
 
 DATA_PATH = "data/"
@@ -16,12 +17,12 @@ def preprocess_seniority():
 
     # Remove html tags from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        r"<[^>]+>", "", regex=True
+        r"<[^>]+>", " ", regex=True
     )
 
     # Remove &nbsp; and \n from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        "&nbsp;", "", regex=False
+        "&[a-zA-Z0-9]+;", " ", regex=False
     )
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
         "\n", "", regex=False
@@ -65,6 +66,8 @@ def preprocess_seniority():
     # Save to csv files. Only text and y_true
     df_train = df_train[["job_text", "y_true"]]
     df_test = df_test[["job_text", "y_true"]]
+    df_train.rename(columns={"y_true": "labels"}, inplace=True)
+    df_test.rename(columns={"y_true": "labels"}, inplace=True)
 
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
@@ -73,7 +76,7 @@ def preprocess_seniority():
     df_test.to_csv(DATA_PATH + "seniority_test.csv", index=False)
 
 
-def load_data_mc(dataset: str = "seniority"):
+def load_data_mc(dataset: str = "seniority") -> tuple[Dataset, Dataset]:
     """
     Loads the dataset for multiclass classification.
     This function loads the dataset from the specified path and returns the train and test datasets.
@@ -93,7 +96,7 @@ def load_data_mc(dataset: str = "seniority"):
         [os.path.exists(file) for file in data_files.values()]
     ), "Dataset files not found. Please run the preprocessing script."
 
-    dataset = load_dataset("csv", data_files=data_files, delimiter=",")
+    dataset: DatasetDict = load_dataset("csv", data_files=data_files, delimiter=",")
 
     return dataset["train"], dataset["test"]
 
@@ -112,4 +115,3 @@ if __name__ == "__main__":
         print(f"Sample {i}: {sample}")
         if i == 4:
             break
-print("cum")
