@@ -1,6 +1,8 @@
 # Own
 data/
 ideas.md
+*.bat
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
