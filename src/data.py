@@ -112,4 +112,3 @@ if __name__ == "__main__":
         print(f"Sample {i}: {sample}")
         if i == 4:
             break
-print("cum")
