@@ -11,8 +11,8 @@ def preprocess_seniority():
     Preprocesses the seniority dataset and save train and test datasets.
     """
 
-    df_train = pd.read_csv("job_data_files/seniority_labelled_development_set.csv")
-    df_test = pd.read_csv("job_data_files/seniority_labelled_test_set.csv")
+    df_train = pd.read_csv(f"{DATA_PATH}/seniority_labelled_development_set.csv")
+    df_test = pd.read_csv(f"{DATA_PATH}/seniority_labelled_test_set.csv")
 
     # Remove html tags from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
