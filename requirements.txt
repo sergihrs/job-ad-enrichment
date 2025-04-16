@@ -2,3 +2,6 @@ pandas
 matplotlib
 seaborn
 ipykernel
+bs4
+scikit-learn
+nltk
