@@ -57,43 +57,47 @@ def _train_classifier_on_tf_idf(x_job_ad_details: pd.Series, y: pd.Series) -> No
 
 
 
-def statistical_model_seniority(seniority_dev: pd.DataFrame) -> None:
+def _stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
   """
-  Fit a statistical model to the seniority data.
+  Fit a statistical model to the data (e.g. seniority or work arrangements).
   
   Args:
-      seniority_dev (pd.DataFrame): The seniority data to fit the model to.
+      data (pd.DataFrame): The data to fit the model to. Must have 'job_ad_details' and 'y_true' columns.
   
   Returns:
-      None: Just prints the accuracy results by seniority level.
+      None: Just saves the accuracy results by y_true classification.
   """
   # Preprocess
-  seniority_dev['job_ad_details'] = seniority_dev['job_ad_details'].apply(lambda x: _get_words_from_html(x))
+  data['job_ad_details'] = data['job_ad_details'].apply(lambda x: _get_words_from_html(x))
   
   # Model
-  train, val = train_test_split(seniority_dev, test_size=HyperP.VAL_SIZE, random_state=MetaP.RANDOM_SEED)
+  train, val = train_test_split(data, test_size=HyperP.VAL_SIZE, random_state=MetaP.RANDOM_SEED)
   model = _train_classifier_on_tf_idf(train['job_ad_details'], train['y_true'])
 
   # Predict on validation set and report accuracy
   val_predictions = model.predict(val['job_ad_details'])
   val['predictions'] = val_predictions
   val['correct'] = val['y_true'] == val['predictions']
-  accuracy_by_seniority = val.groupby('y_true')['correct'].mean()
+  accuracy_by_level = val.groupby('y_true')['correct'].mean()
   overall_accuracy = val['correct'].sum() / len(val)
 
   # Save to CSV
-  accuracy_by_seniority.to_csv(
-    os.path.join(MetaP.REPORT_DIR, 'seniority_stat_model_accuracy_by_seniority.csv'),
+  accuracy_by_level.to_csv(
+    os.path.join(MetaP.REPORT_DIR, f'STATMODEL1 {dataset_type}_individual_accuracy.csv'),
     index=True
   )
   pd.DataFrame({'overall_accuracy': [overall_accuracy]}).to_csv(
-    os.path.join(MetaP.REPORT_DIR, 'seniority_stat_model_overall_accuracy.csv'),
+    os.path.join(MetaP.REPORT_DIR, f'STATMODEL2 {dataset_type}_overall_accuracy.csv'),
     index=False
   )
 
+def stat_model_seniority(seniority_dev: pd.DataFrame) -> None:
+  _stat_model_classifier(seniority_dev, 'seniority')
 
+def stat_model_work_arr(work_arr_dev: pd.DataFrame) -> None:
+  _stat_model_classifier(work_arr_dev, 'work_arr')
 
-  
+ 
   
 
 if __name__ == '__main__':

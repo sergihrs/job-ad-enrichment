@@ -15,3 +15,4 @@ class MetaP(Parameters):
 class HyperP(Parameters):
   VAL_SIZE: float = 0.2
   CURRENCY_CHARS: list[str] = ['$', '€', '£', '¥', '฿', '₱', '₹', '₩', '₺', '₫', '₭', '₮', '₨']
+  SALARY_DELIMITER: str = '-'

@@ -55,12 +55,9 @@ class DataPreProcessor:
       if 'job_ad_details' in dataset.columns:
         self._remove_duplicate_values_from_field(dataset_name, 'job_ad_details')
 
-  def print_log(self):
-    print(self.log)
+  def save_log(self):
+    self.log.to_csv(f'{MetaP.REPORT_DIR}/DATA1 log.csv', index=False)
     
   def clean_data(self):
     self._remove_duplicates()
-    if MetaP.VERBOSE:
-      self.print_log()
-
     return self.data

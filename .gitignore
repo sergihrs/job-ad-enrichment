@@ -4,6 +4,8 @@ ideas.md
 *.bat
 *.ipynb
 *.csv
+*.png
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

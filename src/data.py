@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from src.config import MetaP
 from src.DataPreProcessor import DataPreProcessor
+from src.config import HyperP
 
 
 def _read_data_file(file_path: str, file_name: str, col_names: list[str]=None) -> pd.DataFrame:
@@ -26,6 +27,20 @@ def _read_data_file(file_path: str, file_name: str, col_names: list[str]=None) -
 
   return df
 
+def _split_salary_y_true(salary_data: pd.DataFrame) -> pd.DataFrame:
+  """
+  Splits the salary data into min, max, currency, and frequency columns.
+  salary_dev_y_true: pd.DataFrame: The salary data to split.
+  Returns:
+    salary_dev_y_true: pd.DataFrame: The split salary data.
+  """
+  salary_data[['y_salary_min', 'y_salary_max', 'y_currency', 'y_frequency']] = \
+    salary_data['y_true'].str.split(HyperP.SALARY_DELIMITER, expand=True)
+  
+  salary_data['y_salary_min'] = salary_data['y_salary_min'].astype(float)
+  salary_data['y_salary_max'] = salary_data['y_salary_max'].astype(float)
+  return salary_data
+
 
 def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
   """
@@ -43,6 +58,10 @@ def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
   work_arr_test = _read_data_file(file_path=file_path, file_name='work_arrangements_test_set.csv',
                                   col_names=['job_id', 'job_ad_details', 'y_true'])
   unlabelled_dev = _read_data_file(file_path=file_path, file_name='unlabelled_development_set.csv')
+
+  # For salary dev and test only, split the y_true field into min, max, currency, and frequency
+  salary_dev = _split_salary_y_true(salary_dev)
+  salary_test = _split_salary_y_true(salary_test)
 
   all_data = {
     'salary_dev': salary_dev,
@@ -65,6 +84,7 @@ def preprocess_data(data: dict[pd.DataFrame]) -> dict[pd.DataFrame]:
   """
   preprocessor = DataPreProcessor(data)
   data = preprocessor.clean_data()
+  preprocessor.save_log()
   return data
 
 
