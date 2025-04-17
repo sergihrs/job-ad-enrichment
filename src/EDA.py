@@ -3,25 +3,6 @@ import re
 from matplotlib import pyplot as plt
 from src.config import MetaP
 
-def _print_all_potential_currency_chars(salary_dev: pd.DataFrame):
-  """
-  Get all unique currency characters from the salary data.
-
-  Args:
-    salary_data (pd.DataFrame): The salary data DataFrame.
-
-  Returns:
-    set: A set of unique currency characters.
-  """
-  all_potential_currency_chars = set()
-  for currency in salary_dev['salary_additional_text'].dropna():
-    # Use regex to find all currency characters in the string
-    currency = set(re.findall(r'[^\w\s]', currency))
-    # Add the found currency characters to the set
-    all_potential_currency_chars.update(currency)
-
-  print(f'All potential currency characters: {all_potential_currency_chars}')
-
 def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   """
   Summarise the salary data.
@@ -35,9 +16,9 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   # Plot a histogram of minimmum and maximum salary (different legends) excluding zeros
 
   # Annual
-  annual_data = salary_dev[salary_dev['y_frequency'] == 'ANNUAL']
-  min_data = annual_data['y_salary_min'].dropna()
-  max_data = annual_data['y_salary_max'].dropna()
+  annual_data = salary_dev[salary_dev['y_true_frequency'] == 'ANNUAL']
+  min_data = annual_data['y_true_salary_min'].dropna()
+  max_data = annual_data['y_true_salary_max'].dropna()
   min_data = min_data[(min_data > 0)]
   max_data = max_data[(max_data > 0)]
 
@@ -51,9 +32,9 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   plt.savefig(f'{MetaP.REPORT_DIR}/SAL1.1 salary_dev_annual_salary_distribution.png')
 
   # Hourly
-  hourly_data = salary_dev[salary_dev['y_frequency'] == 'HOURLY']
-  min_data = hourly_data['y_salary_min'].dropna()
-  max_data = hourly_data['y_salary_max'].dropna()
+  hourly_data = salary_dev[salary_dev['y_true_frequency'] == 'HOURLY']
+  min_data = hourly_data['y_true_salary_min'].dropna()
+  max_data = hourly_data['y_true_salary_max'].dropna()
   min_data_count_excluded = sum(max_data >= 200)
   max_data_count_excluded = sum(min_data >= 200)
   min_data = min_data[(min_data > 0) & (min_data < 200)]
@@ -72,18 +53,18 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   # Average annual salary by currency
   statistics = ['size', 'min', 'max', 'mean']
 
-  avg_annual_by_currency = salary_dev.dropna(subset=['y_currency', 'y_salary_min'])
-  avg_annual_by_currency = avg_annual_by_currency[avg_annual_by_currency['y_frequency'] == 'ANNUAL']
-  avg_annual_by_currency = avg_annual_by_currency[avg_annual_by_currency['y_salary_min'] > 0]
-  avg_annual_by_currency = avg_annual_by_currency.groupby('y_currency')['y_salary_min'].agg(statistics).reset_index()
+  avg_annual_by_currency = salary_dev.dropna(subset=['y_true_currency', 'y_true_salary_min'])
+  avg_annual_by_currency = avg_annual_by_currency[avg_annual_by_currency['y_true_frequency'] == 'ANNUAL']
+  avg_annual_by_currency = avg_annual_by_currency[avg_annual_by_currency['y_true_salary_min'] > 0]
+  avg_annual_by_currency = avg_annual_by_currency.groupby('y_true_currency')['y_true_salary_min'].agg(statistics).reset_index()
   avg_annual_by_currency = avg_annual_by_currency.sort_values(by='mean', ascending=False)
   avg_annual_by_currency[statistics] = avg_annual_by_currency[statistics].astype(int)
   avg_annual_by_currency.to_csv(f'{MetaP.REPORT_DIR}/SAL2.1 salary_dev_avg_annual_by_currency.csv', index=False)
   
-  avg_hourly_by_currency = salary_dev.dropna(subset=['y_currency', 'y_salary_min'])
-  avg_hourly_by_currency = avg_hourly_by_currency[avg_hourly_by_currency['y_frequency'] == 'HOURLY']
-  avg_hourly_by_currency = avg_hourly_by_currency[avg_hourly_by_currency['y_salary_min'] > 0]
-  avg_hourly_by_currency = avg_hourly_by_currency.groupby('y_currency')['y_salary_min'].agg(statistics).reset_index()
+  avg_hourly_by_currency = salary_dev.dropna(subset=['y_true_currency', 'y_true_salary_min'])
+  avg_hourly_by_currency = avg_hourly_by_currency[avg_hourly_by_currency['y_true_frequency'] == 'HOURLY']
+  avg_hourly_by_currency = avg_hourly_by_currency[avg_hourly_by_currency['y_true_salary_min'] > 0]
+  avg_hourly_by_currency = avg_hourly_by_currency.groupby('y_true_currency')['y_true_salary_min'].agg(statistics).reset_index()
   avg_hourly_by_currency = avg_hourly_by_currency.sort_values(by='mean', ascending=False)
   avg_hourly_by_currency[statistics] = avg_hourly_by_currency[statistics].astype(int)
   avg_hourly_by_currency.to_csv(f'{MetaP.REPORT_DIR}/SAL2.2 salary_dev_avg_hourly_by_currency.csv', index=False)
@@ -131,7 +112,6 @@ def _summarise_seniority_data(seniority_dev: pd.DataFrame) -> None:
 
 
 def _conduct_EDA_salary_data(salary_dev: pd.DataFrame) -> None:
-  _print_all_potential_currency_chars(salary_dev)
   _summarise_salary_data(salary_dev)
 
 def _conduct_EDA_work_arrangement_data(work_arr_dev: pd.DataFrame) -> None:

@@ -34,11 +34,14 @@ def _split_salary_y_true(salary_data: pd.DataFrame) -> pd.DataFrame:
   Returns:
     salary_dev_y_true: pd.DataFrame: The split salary data.
   """
-  salary_data[['y_salary_min', 'y_salary_max', 'y_currency', 'y_frequency']] = \
+  salary_data[['y_true_salary_min', 'y_true_salary_max', 'y_true_currency', 'y_true_frequency']] = \
     salary_data['y_true'].str.split(HyperP.SALARY_DELIMITER, expand=True)
   
-  salary_data['y_salary_min'] = salary_data['y_salary_min'].astype(float)
-  salary_data['y_salary_max'] = salary_data['y_salary_max'].astype(float)
+  salary_data['y_true_salary_min'] = salary_data['y_true_salary_min'].astype(int)
+  salary_data['y_true_salary_max'] = salary_data['y_true_salary_max'].astype(int)
+  salary_data['y_true_currency'] = salary_data['y_true_currency'].astype(str).apply(lambda x: x.strip())
+  salary_data['y_true_frequency'] = salary_data['y_true_frequency'].astype(str).apply(lambda x: x.strip())
+
   return salary_data
 
 

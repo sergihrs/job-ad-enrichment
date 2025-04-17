@@ -1,17 +1,15 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
-from src.config import MetaP, HyperP
-from bs4 import BeautifulSoup
-import re
+import pandas as pd
 from nltk.corpus import words as nltk_words
 import os
+from sklearn.model_selection import train_test_split
+from src.config import HyperP, MetaP
 
 english_words = set(nltk_words.words())
 
-def _get_words_from_html(html_content: str) -> str:
+def clean_html(html_content: pd.Series) -> str:
   """
   Extract text from HTML content.
   
@@ -21,14 +19,36 @@ def _get_words_from_html(html_content: str) -> str:
   Returns:
       str: The extracted text.
   """
-  soup = BeautifulSoup(html_content, 'html.parser')
-  words = soup.get_text().split()
-  words = [word.strip().lower() for word in words if word.strip()]
+  # soup = BeautifulSoup(html_content, 'html.parser')
+  # words = soup.get_text().split()
+  # words = [word.strip().lower() for word in words if word.strip()]
 
-  # Retain only words that are in the English dictionary
-  words = ' '.join([word for word in words if word.lower() in english_words])
-  return words
+  # # Retain only words that are in the English dictionary
+  # words = ' '.join([word for word in words if word.lower() in english_words])
 
+  # Remove html tags from job_ad_details
+  html_content_cleaned = html_content.str.replace(
+      r"<[^>]+>", " ", regex=True
+  )
+
+  # Remove html & characters from job_ad_details
+  html_content_cleaned = html_content_cleaned.str.replace(
+      r"&[a-zA-Z0-9]+;", " ", regex=True
+  )
+
+  # Remove escaped characters from job_ad_details
+  html_content_cleaned = html_content_cleaned.str.replace(
+      r"\\[a-zA-Z0-9]+", " ", regex=True
+  )
+
+  # Merge multiple spaces into one
+  html_content_cleaned = html_content_cleaned.str.replace(
+      r"\s+", " ", regex=True
+  )
+
+  html_content_cleaned = html_content_cleaned.apply(lambda x: x.lower())
+
+  return html_content_cleaned
 
 def _train_classifier_on_tf_idf(x_job_ad_details: pd.Series, y: pd.Series) -> None:
     """
@@ -57,9 +77,12 @@ def _train_classifier_on_tf_idf(x_job_ad_details: pd.Series, y: pd.Series) -> No
 
 
 
-def _stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
+
+
+
+def stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
   """
-  Fit a statistical model to the data (e.g. seniority or work arrangements).
+  Fit a statistical model to the d  ata (e.g. seniority or work arrangements).
   
   Args:
       data (pd.DataFrame): The data to fit the model to. Must have 'job_ad_details' and 'y_true' columns.
@@ -68,7 +91,7 @@ def _stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
       None: Just saves the accuracy results by y_true classification.
   """
   # Preprocess
-  data['job_ad_details'] = data['job_ad_details'].apply(lambda x: _get_words_from_html(x))
+  data['job_ad_details'] = clean_html(data['job_ad_details'])
   
   # Model
   train, val = train_test_split(data, test_size=HyperP.VAL_SIZE, random_state=MetaP.RANDOM_SEED)
@@ -78,7 +101,11 @@ def _stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
   val_predictions = model.predict(val['job_ad_details'])
   val['predictions'] = val_predictions
   val['correct'] = val['y_true'] == val['predictions']
-  accuracy_by_level = val.groupby('y_true')['correct'].mean()
+  accuracy_by_level = val.groupby('y_true').agg(
+    count=('correct', 'size'),
+    sum=('correct', 'sum'),
+  )
+  accuracy_by_level['accuracy'] = accuracy_by_level['sum'] / accuracy_by_level['count']
   overall_accuracy = val['correct'].sum() / len(val)
 
   # Save to CSV
@@ -91,14 +118,6 @@ def _stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
     index=False
   )
 
-def stat_model_seniority(seniority_dev: pd.DataFrame) -> None:
-  _stat_model_classifier(seniority_dev, 'seniority')
-
-def stat_model_work_arr(work_arr_dev: pd.DataFrame) -> None:
-  _stat_model_classifier(work_arr_dev, 'work_arr')
-
- 
-  
 
 if __name__ == '__main__':
   pass

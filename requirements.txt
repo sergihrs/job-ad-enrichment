@@ -5,3 +5,5 @@ ipykernel
 bs4
 scikit-learn
 nltk
+langdetect
+spacy
