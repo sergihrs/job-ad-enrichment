@@ -9,7 +9,7 @@ import os
 nlp = spacy.load('en_core_web_sm')
 
 
-def get_salary_text(salary_dev: pd.DataFrame) -> str:
+def _get_salary_text(salary_dev: pd.DataFrame) -> str:
   salary_dev['job_ad_details'] = clean_html(salary_dev['job_ad_details'])
   
   text = (
@@ -45,7 +45,7 @@ def _stat_model_salary_freq(salary_dev: pd.DataFrame) -> None:
   Returns:
     pd.Series[str]: The predicted frequency.
   """
-  text = get_salary_text(salary_dev)
+  text = _get_salary_text(salary_dev)
   frequencies = text.apply(_get_stat_model_salary_freq)
   return frequencies
 
@@ -132,7 +132,7 @@ def _stat_model_salary_amount(salary_dev: pd.DataFrame) -> None:
   Returns:
     pd.Series[(float, float)]: The predicted min and max salary amounts.
   """
-  text = get_salary_text(salary_dev)
+  text = _get_salary_text(salary_dev)
   salaries = text.apply(_get_stat_model_salary_amount)
   return salaries
 

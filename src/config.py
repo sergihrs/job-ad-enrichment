@@ -38,4 +38,13 @@ class HyperP(Parameters):
   CURR_DEFAULT: str = 'AUD'
   SAL_MIN_MAX_PC_DIFFERENCE: float = 0.6
   SAL_AMOUNT_DEFAULT: int = 0
+  SENIORITY_MIN_COUNT: int = 8
+  SENIORITY_REPLACE: dict[str, str] = {
+    "entry-level": "entry level",
+    "mid-senior": "intermediate",
+    "mid-level": "intermediate",
+    "board": "director",
+  }
+  SENIORITY_KEYWORDS: list[str] = [] # TBD dynamically
+  SENIORITY_DEFAULT: str = 'experienced'
   NONE_STR: str = 'None'

@@ -45,6 +45,16 @@ def _split_salary_y_true(salary_data: pd.DataFrame) -> pd.DataFrame:
   return salary_data
 
 
+def _merge_seniority_data(seniority_dev: pd.DataFrame) -> pd.DataFrame:
+  seniority_dev['y_true_merged'] = seniority_dev['y_true'].replace(to_replace=HyperP.SENIORITY_REPLACE)
+
+  # Exclude items in seniority_dev with fewer than 8 counts
+  seniority_dev = seniority_dev[seniority_dev['y_true_merged'].map(seniority_dev['y_true_merged'].value_counts()) >= HyperP.SENIORITY_MIN_COUNT]
+
+  HyperP.SENIORITY_KEYWORDS = seniority_dev['y_true_merged'].unique()
+
+  return seniority_dev
+
 def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
   """
   Reads the data files from the specified path and returns them as a dictionary.
@@ -65,6 +75,8 @@ def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
   # For salary dev and test only, split the y_true field into min, max, currency, and frequency
   salary_dev = _split_salary_y_true(salary_dev)
   salary_test = _split_salary_y_true(salary_test)
+
+  seniority_dev = _merge_seniority_data(seniority_dev)
 
   all_data = {
     'salary_dev': salary_dev,

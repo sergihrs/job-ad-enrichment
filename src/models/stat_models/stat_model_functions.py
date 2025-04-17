@@ -50,6 +50,7 @@ def clean_html(html_content: pd.Series) -> str:
 
   return html_content_cleaned
 
+
 def _train_classifier_on_tf_idf(x_job_ad_details: pd.Series, y: pd.Series) -> None:
     """
     Train a classifier on TF-IDF features, treating each unique value of y_true as a single document.
