@@ -1,6 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 import os
+from datasets import DatasetDict, Dataset
 
 
 DATA_PATH = "data/"
@@ -11,20 +12,17 @@ def preprocess_seniority():
     Preprocesses the seniority dataset and save train and test datasets.
     """
 
-    df_train = pd.read_csv("job_data_files/seniority_labelled_development_set.csv")
-    df_test = pd.read_csv("job_data_files/seniority_labelled_test_set.csv")
+    df_train = pd.read_csv(f"{DATA_PATH}/seniority_labelled_development_set.csv")
+    df_test = pd.read_csv(f"{DATA_PATH}/seniority_labelled_test_set.csv")
 
     # Remove html tags from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        r"<[^>]+>", "", regex=True
+        r"<[^>]+>", " ", regex=True
     )
 
     # Remove &nbsp; and \n from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        "&nbsp;", "", regex=False
-    )
-    df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        "\n", "", regex=False
+        "&[a-zA-Z0-9]+;", " ", regex=True
     )
 
     # Merge multiple spaces into one
@@ -65,6 +63,15 @@ def preprocess_seniority():
     # Save to csv files. Only text and y_true
     df_train = df_train[["job_text", "y_true"]]
     df_test = df_test[["job_text", "y_true"]]
+    # df_train.rename(columns={"y_true": "labels"}, inplace=True)
+    # df_test.rename(columns={"y_true": "labels"}, inplace=True)
+
+    # Add a new column "labels" with the integer values of the unique labels (use both train and test)
+    unique_labels = set(df_train["y_true"].unique()) | set(df_test["y_true"].unique())
+    label_to_id = {label: i for i, label in enumerate(unique_labels)}
+    id_to_label = {i: label for label, i in label_to_id.items()}
+    df_train["labels"] = df_train["y_true"].map(label_to_id)
+    df_test["labels"] = df_test["y_true"].map(label_to_id)
 
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
@@ -72,8 +79,10 @@ def preprocess_seniority():
     df_train.to_csv(DATA_PATH + "seniority_train.csv", index=False)
     df_test.to_csv(DATA_PATH + "seniority_test.csv", index=False)
 
+    return id_to_label, label_to_id
 
-def load_data_mc(dataset: str = "seniority"):
+
+def load_data_mc(dataset: str = "seniority") -> tuple[Dataset, Dataset]:
     """
     Loads the dataset for multiclass classification.
     This function loads the dataset from the specified path and returns the train and test datasets.
@@ -84,6 +93,8 @@ def load_data_mc(dataset: str = "seniority"):
     Returns:
         tuple: A tuple containing the train and test datasets.
     """
+    id_to_label, label_to_id = preprocess_seniority()
+
     # Load the dataset
     data_files = {
         "train": DATA_PATH + f"{dataset}_train.csv",
@@ -93,9 +104,9 @@ def load_data_mc(dataset: str = "seniority"):
         [os.path.exists(file) for file in data_files.values()]
     ), "Dataset files not found. Please run the preprocessing script."
 
-    dataset = load_dataset("csv", data_files=data_files, delimiter=",")
+    dataset: DatasetDict = load_dataset("csv", data_files=data_files, delimiter=",")
 
-    return dataset["train"], dataset["test"]
+    return dataset["train"], dataset["test"], id_to_label, label_to_id
 
 
 if __name__ == "__main__":
