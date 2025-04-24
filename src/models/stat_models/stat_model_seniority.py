@@ -33,7 +33,7 @@ def _get_stat_model_seniority(seniority_text: str) -> None:
   return HyperP.SENIORITY_DEFAULT
 
 
-def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame) -> None:
+def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame, do_group: bool=False) -> None:
   """Predict the frequency of salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the frequency from.
@@ -43,6 +43,21 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame) -> None:
   """
   text = _get_seniority_text(seniority_dev)
   predictions = text.apply(_get_stat_model_seniority)
+  
+  if do_group:
+    seniority_mapping = pd.read_excel("./notebooks/seniority_mapping.xlsx")
+    # Apply the mapping to predictions and to seniority_dev['y_true_merged']
+    mapping_dict = dict(zip(seniority_mapping['y_true'], seniority_mapping['y_true_grouped']))
+    predictions = predictions.map(mapping_dict)
+    seniority_dev['y_true_merged'] = seniority_dev['y_true_merged'].map(mapping_dict)
+    
+    new_df = pd.DataFrame({
+      'y_true': seniority_dev['y_true_merged'],
+      'predictions': predictions,
+    })
+    new_df.to_csv('a.csv', index=False)
+    
+  
   seniority_dev['correct'] = predictions == seniority_dev['y_true_merged']
   accuracy_by_seniority = seniority_dev.groupby('y_true_merged').agg(
     count=('y_true_merged', 'size'),
@@ -53,11 +68,11 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame) -> None:
 
   # Save to CSV
   accuracy_by_seniority.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL1 seniority_lookup_individual_accuracy.csv'),
+    os.path.join(MetaP.REPORT_DIR, f'STATMODEL1 {do_group} seniority_lookup_individual_accuracy.csv'),
     index=True
   )
   pd.DataFrame({'overall_accuracy': [overall_accuracy]}).to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL2 seniority_lookup_overall_accuracy.csv'),
+    os.path.join(MetaP.REPORT_DIR, f'STATMODEL2 {do_group} seniority_lookup_overall_accuracy.csv'),
     index=False
   )
   return seniority_dev
@@ -65,7 +80,8 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame) -> None:
 
 def stat_model_seniority(seniority_dev: pd.DataFrame) -> None:
   stat_model_classifier(seniority_dev, 'seniority')
-  _stat_model_seniority_lookup(seniority_dev)
+  _stat_model_seniority_lookup(seniority_dev, do_group=False)
+  _stat_model_seniority_lookup(seniority_dev, do_group=True)
   
 
 if __name__ == '__main__':

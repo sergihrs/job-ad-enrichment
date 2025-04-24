@@ -10,6 +10,8 @@ class MetaP(Parameters):
   DATA_DIR: str = 'data'
   REPORT_DIR: str = 'report'
   VERBOSE: bool = True
+  MULTICLASS_OUTPUT_DIR: str = './models/distilbert-finetuned'
+  MULTICLASS_OUTPUT_CHECKPOINT_DIR: str = './models/distilbert-finetuned/checkpoint-168'
 
 
 class HyperP(Parameters):

@@ -49,11 +49,12 @@ class DataPreProcessor:
     :return: DataFrame with duplicates removed.
     """
     for dataset_name, dataset in self.data.items():
-      if 'job_id' in dataset.columns:
-        self._remove_duplicate_values_from_field(dataset_name, 'job_id')
-      
-      if 'job_ad_details' in dataset.columns:
-        self._remove_duplicate_values_from_field(dataset_name, 'job_ad_details')
+      if isinstance(dataset, pd.DataFrame):
+        if 'job_id' in dataset.columns:
+          self._remove_duplicate_values_from_field(dataset_name, 'job_id')
+        
+        if 'job_ad_details' in dataset.columns:
+          self._remove_duplicate_values_from_field(dataset_name, 'job_ad_details')
 
   def save_log(self):
     self.log.to_csv(f'{MetaP.REPORT_DIR}/DATA1 log.csv', index=False)

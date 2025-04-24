@@ -3,6 +3,85 @@ import pandas as pd
 from src.config import MetaP
 from src.DataPreProcessor import DataPreProcessor
 from src.config import HyperP
+from datasets import Dataset
+
+
+
+def _preprocess_seniority(
+  seniority_dev: pd.DataFrame,
+  seniority_test: pd.DataFrame,
+  save_to_data_dir: bool=True
+):
+    """
+    Preprocesses the seniority dataset and return train and test datasets
+    """
+
+    # Remove html tags from job_ad_details
+    seniority_dev["job_ad_details"] = seniority_dev["job_ad_details"].str.replace(
+        r"<[^>]+>", " ", regex=True
+    )
+
+    # Remove &nbsp; and \n from job_ad_details
+    seniority_dev["job_ad_details"] = seniority_dev["job_ad_details"].str.replace(
+        "&[a-zA-Z0-9]+;", " ", regex=True
+    )
+
+    # Merge multiple spaces into one
+    seniority_dev["job_ad_details"] = seniority_dev["job_ad_details"].str.replace(
+        r"\s+", " ", regex=True
+    )
+
+    # Merge columns that mean the same
+    seniority_dev["y_true"].replace(
+        {
+            "entry-level": "entry level",
+            "mid-senior": "intermediate",
+            "mid-level": "intermediate",
+            "board": "director",
+        },
+        inplace=True,
+    )
+
+    # Filter columns with less than 8 occurrences
+    seniority_dev["value_count"] = seniority_dev["y_true"].map(seniority_dev["y_true"].value_counts())
+    seniority_dev = seniority_dev[seniority_dev["value_count"] >= 8]
+
+    # Merge all text inputs into one column
+    merge_text = lambda x: (
+        x["job_title"]
+        + ". "
+        + x["job_summary"]
+        + ". "
+        + x["job_ad_details"]
+        + ". "
+        + x["classification_name"]
+        + ". "
+        + x["subclassification_name"]
+    )
+    seniority_dev["job_text"] = seniority_dev.apply(merge_text, axis=1)
+    seniority_test["job_text"] = seniority_test.apply(merge_text, axis=1)
+
+    # Save to csv files. Only text and y_true
+    seniority_dev = seniority_dev[["job_text", "y_true"]]
+    seniority_test = seniority_test[["job_text", "y_true"]]
+    # seniority_dev.rename(columns={"y_true": "labels"}, inplace=True)
+    # seniority_test.rename(columns={"y_true": "labels"}, inplace=True)
+
+    # Add a new column "labels" with the integer values of the unique labels (use both train and test)
+    unique_labels = set(seniority_dev["y_true"].unique()) | set(seniority_test["y_true"].unique())
+    label_to_id = {label: i for i, label in enumerate(unique_labels)}
+    id_to_label = {i: label for label, i in label_to_id.items()}
+    seniority_dev["labels"] = seniority_dev["y_true"].map(label_to_id)
+    seniority_test["labels"] = seniority_test["y_true"].map(label_to_id)
+    
+    if save_to_data_dir:
+      seniority_dev.to_csv(os.path.join(MetaP.DATA_DIR, "seniority_train.csv"), index=False)
+      seniority_test.to_csv(os.path.join(MetaP.DATA_DIR, "seniority_test.csv"), index=False)
+         
+    seniority_dev = Dataset.from_pandas(seniority_dev)
+    seniority_test = Dataset.from_pandas(seniority_test)
+  
+    return seniority_dev, seniority_test, id_to_label, label_to_id
 
 
 def _read_data_file(file_path: str, file_name: str, col_names: list[str]=None) -> pd.DataFrame:
@@ -55,12 +134,13 @@ def _merge_seniority_data(seniority_dev: pd.DataFrame) -> pd.DataFrame:
 
   return seniority_dev
 
-def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
+
+def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[object]:
   """
   Reads the data files from the specified path and returns them as a dictionary.
   file_path: str: The path to the data files.
   Returns:
-    all_data: dict: A dictionary containing the dataframes.
+    all_data: dict: A dictionary containing the dataframes or HuggingFace Datasets.
   """
   salary_dev = _read_data_file(file_path=file_path, file_name='salary_labelled_development_set.csv')
   salary_test = _read_data_file(file_path=file_path, file_name='salary_labelled_test_set.csv')
@@ -75,6 +155,9 @@ def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
   # For salary dev and test only, split the y_true field into min, max, currency, and frequency
   salary_dev = _split_salary_y_true(salary_dev)
   salary_test = _split_salary_y_true(salary_test)
+  
+  seniority_dev_for_multiclass, seniority_test_for_multiclass, \
+    id_to_label, label_to_id = _preprocess_seniority(seniority_dev, seniority_test)
 
   seniority_dev = _merge_seniority_data(seniority_dev)
 
@@ -85,7 +168,11 @@ def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[pd.DataFrame]:
     'seniority_test': seniority_test,
     'work_arr_dev': work_arr_dev,
     'work_arr_test': work_arr_test,
-    'unlabelled_dev': unlabelled_dev
+    'unlabelled_dev': unlabelled_dev,
+    'seniority_dev_for_multiclass': seniority_dev_for_multiclass,
+    'seniority_test_for_multiclass': seniority_test_for_multiclass,
+    'id_to_label': id_to_label,
+    'label_to_id': label_to_id,
   }
 
   return all_data

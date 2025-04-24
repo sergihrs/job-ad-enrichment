@@ -7,3 +7,9 @@ scikit-learn
 nltk
 langdetect
 spacy
+transformers
+torch
+peft
+datasets
+ipykernel
+openpyxl
