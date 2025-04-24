@@ -22,10 +22,7 @@ def preprocess_seniority():
 
     # Remove &nbsp; and \n from job_ad_details
     df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        "&[a-zA-Z0-9]+;", " ", regex=False
-    )
-    df_train["job_ad_details"] = df_train["job_ad_details"].str.replace(
-        "\n", "", regex=False
+        "&[a-zA-Z0-9]+;", " ", regex=True
     )
 
     # Merge multiple spaces into one
@@ -66,14 +63,23 @@ def preprocess_seniority():
     # Save to csv files. Only text and y_true
     df_train = df_train[["job_text", "y_true"]]
     df_test = df_test[["job_text", "y_true"]]
-    df_train.rename(columns={"y_true": "labels"}, inplace=True)
-    df_test.rename(columns={"y_true": "labels"}, inplace=True)
+    # df_train.rename(columns={"y_true": "labels"}, inplace=True)
+    # df_test.rename(columns={"y_true": "labels"}, inplace=True)
+
+    # Add a new column "labels" with the integer values of the unique labels (use both train and test)
+    unique_labels = set(df_train["y_true"].unique()) | set(df_test["y_true"].unique())
+    label_to_id = {label: i for i, label in enumerate(unique_labels)}
+    id_to_label = {i: label for label, i in label_to_id.items()}
+    df_train["labels"] = df_train["y_true"].map(label_to_id)
+    df_test["labels"] = df_test["y_true"].map(label_to_id)
 
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
 
     df_train.to_csv(DATA_PATH + "seniority_train.csv", index=False)
     df_test.to_csv(DATA_PATH + "seniority_test.csv", index=False)
+
+    return id_to_label, label_to_id
 
 
 def load_data_mc(dataset: str = "seniority") -> tuple[Dataset, Dataset]:
@@ -87,6 +93,8 @@ def load_data_mc(dataset: str = "seniority") -> tuple[Dataset, Dataset]:
     Returns:
         tuple: A tuple containing the train and test datasets.
     """
+    id_to_label, label_to_id = preprocess_seniority()
+
     # Load the dataset
     data_files = {
         "train": DATA_PATH + f"{dataset}_train.csv",
@@ -98,7 +106,7 @@ def load_data_mc(dataset: str = "seniority") -> tuple[Dataset, Dataset]:
 
     dataset: DatasetDict = load_dataset("csv", data_files=data_files, delimiter=",")
 
-    return dataset["train"], dataset["test"]
+    return dataset["train"], dataset["test"], id_to_label, label_to_id
 
 
 if __name__ == "__main__":
