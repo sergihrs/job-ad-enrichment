@@ -19,6 +19,8 @@ class FacebookOpt359mModel:
   ):
     self.dataset_name = dataset_name
     self.model_name = 'facebook/opt-350m'
+    self.x_column_name = 'job_ad_details'
+    self.y_column_name = 'y_true_grouped'
     
     self._get_prompt_start_and_end()
     self._get_data(train_data, val_data)
@@ -35,30 +37,23 @@ class FacebookOpt359mModel:
     self.prompt_start = f'What is the {text.lower()} of this Job?\Job: '
     self.prompt_end = f'\{text}: '
     
-  def _get_data(self, train_data: pd.DataFrame, val_data: pd.DataFrame) -> None:
-    # Get only the columns needed for training the facebook_opt359m model
-    x_column_name = 'job_ad_details'
-    y_column_name = 'y_true_grouped'
-    
-    assert x_column_name in train_data.columns, f"Column {x_column_name} not found in train data."
-    assert y_column_name in train_data.columns, f"Column {y_column_name} not found in train data."
-    
-    train_data = train_data[[x_column_name, y_column_name]].copy()
-    val_data = val_data[[x_column_name, y_column_name]].copy()
+  def _get_data(self, train_data: pd.DataFrame, val_data: pd.DataFrame) -> None:    
+    train_data = train_data[[self.x_column_name, self.y_column_name]].copy()
+    val_data = val_data[[self.x_column_name, self.y_column_name]].copy()
     
     # Convert the target to integers
-    unique_labels = set(train_data[y_column_name].unique()) | set(val_data[y_column_name].unique())
+    unique_labels = set(train_data[self.y_column_name].unique()) | set(val_data[self.y_column_name].unique())
     self.label_to_id = {label: i for i, label in enumerate(unique_labels)}
     self.id_to_label = {i: label for label, i in self.label_to_id.items()}
-    train_data['label'] = train_data[y_column_name].map(self.label_to_id)
-    val_data['label'] = val_data[y_column_name].map(self.label_to_id)
+    train_data['label'] = train_data[self.y_column_name].map(self.label_to_id)
+    val_data['label'] = val_data[self.y_column_name].map(self.label_to_id)
     
     self.train_data = Dataset.from_pandas(train_data)
     self.val_data = Dataset.from_pandas(val_data)
     
   def _tokenise(self):
-    self.train_data = self.dataset.train_data.map(lambda samples: self.tokeniser(samples["job_text"]), batched=True)
-    self.val_data = self.dataset.val_data.map(lambda samples: self.tokeniser(samples["job_text"]), batched=True)
+    self.train_data = self.train_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), batched=True)
+    self.val_data = self.val_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), batched=True)
     
   def _set_peft_model(self):
     self.peft_config = LoraConfig(
@@ -71,7 +66,7 @@ class FacebookOpt359mModel:
     
     self.model = get_peft_model(self.model, self.peft_config)
     
-  def _preprocess_inputs(self, input: Dataset) -> dict:
+  def _preprocess_inputs(self) -> dict:
     def preprocess(input: Dataset) -> dict:
       prompt = f'{self.prompt_start}{input["job_ad_details"]}{{self.prompt_end}}'
 
@@ -80,7 +75,7 @@ class FacebookOpt359mModel:
       return tokenised
     
     self.train_data = self.train_data.map(preprocess, remove_columns=self.train_data.column_names)
-    test_data = self.test_data.map(preprocess, remove_columns=self.test_data.column_names)
+    self.val_data = self.val_data.map(preprocess, remove_columns=self.val_data.column_names)
     
   def _train(self):
     def compute_metrics(eval_pred):
@@ -119,6 +114,7 @@ class FacebookOpt359mModel:
   def setup_and_train(self):
     self._tokenise()
     self._set_peft_model()
+    self._preprocess_inputs()
     self._train()
     
   def predict(self, input: pd.DataFrame) -> pd.DataFrame:
