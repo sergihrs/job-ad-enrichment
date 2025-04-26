@@ -17,6 +17,7 @@ class FacebookOpt350mModel:
     train_data: pd.DataFrame,
     val_data: pd.DataFrame,
   ):
+    self.name = 'facebook'
     self.dataset_name = dataset_name
     self.model_name = 'facebook/opt-350m'
     self.x_column_name = 'job_ad_details'
@@ -89,7 +90,7 @@ class FacebookOpt350mModel:
         output_dir=os.path.join(MetaP.MODELS_DIR, self.model_name),
         per_device_train_batch_size=2,
         gradient_accumulation_steps=4,
-        max_steps=500,
+        max_steps=HyperP.MAX_TRAINING_STEPS,
         warmup_steps=5,
         learning_rate=2e-4,
         logging_steps=1,
@@ -127,5 +128,5 @@ class FacebookOpt350mModel:
         "predictions": preds,
         "labels": labels
     })
-    predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, f'{self.dataset_name}_val_predictions.csv'), index=False)
+    predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
 

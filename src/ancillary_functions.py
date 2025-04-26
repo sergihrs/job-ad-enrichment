@@ -2,6 +2,9 @@ import os
 import argparse
 from src.config import MetaP, CMDArgs
 
+print('Importing Anthropic. Could take some time...')
+from anthropic import Anthropic
+
 def verify_file(file_path) -> None:
   """
   Verify if the file exists and is a CSV file.
@@ -61,6 +64,31 @@ def _parse_args():
     verify_file(CMDArgs.FILE)
   except Exception as e:
     print(f"Error parsing arguments: {e}")
+    
+    
+def connect_to_anthropic() -> str:
+  """
+  Get the Anthropic API key from the environment variable.
+  """
+  print("Connecting to Anthropic API...")
+  api_key = os.getenv('ANTHROPIC_API_KEY')
+  if not api_key:
+    api_key = input("Enter your Anthropic API key: ")
+  
+  # Attempt to connect to the Anthropic API by making a simple API call
+  client = Anthropic(api_key=api_key)
+  response = client.messages.create(
+      model="claude-3-opus-20240229",
+      max_tokens=1,
+      messages=[
+          {"role": "user", "content": "Hello?"}
+      ]
+  )
+
+  
+  print("Connected to Anthropic API.")
+  
+  return client
     
 def setup():
   _create_dirs()

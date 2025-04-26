@@ -3,14 +3,34 @@ from src.models.stat_models.stat_model_salary import stat_model_salary
 from src.models.stat_models.stat_model_work_arr import stat_model_work_arr
 from src.models.stat_models.stat_model_seniority import stat_model_seniority
 from src.models.fine_tuned_models.FacebookOpt350mModel import FacebookOpt350mModel
+from src.models.proprietary_models.ClaudeHaikuModel import ClaudeHaikuModel
 from src.config import MetaP
+from src.ancillary_functions import connect_to_anthropic
+
+
+def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
+  try:
+    client = connect_to_anthropic()
+    for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
+      # Ignore test for this claude model
+      train_data = data[train_data_name]
+      
+      model = ClaudeHaikuModel(dataset_name, train_data, client)
+      model.setup_and_train()
+      model.save_model()
+  except Exception as e:
+    print(f"Error connecting to Anthropic API: {e}")
+    return
+  
+  
+  
 
 
 def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
   """
   Train the claude_3_5_haiku model.
   """
-  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_FACEBOOK_OPT350M.items():
+  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
     train_data = data[train_data_name]
     test_data = data[test_data_name]
     
@@ -27,6 +47,7 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
   _run_facebook_opt359m(data)
+  _run_claude_haiku(data)
 
 if __name__ == '__main__':
   pass

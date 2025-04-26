@@ -18,10 +18,11 @@ class MetaP(Parameters):
   MULTICLASS_OUTPUT_CHECKPOINT_DIR: str = './models/distilbert-finetuned/checkpoint-168'
   Y_TRUE_GROUPING_FILENAME: str = './src/data/y_true_grouping.xlsx'
   DO_PARSE_ARGS: bool = False
-  DATASETS_FOR_FACEBOOK_OPT350M: dict[tuple[str, str]] = {
+  DATASETS_FOR_LLMS: dict[tuple[str, str]] = {
     'work_arr': ('work_arr_dev', 'work_arr_test'),
     'seniority': ('seniority_dev', 'seniority_test'),
   }
+  ANTHROPIC_API_KEY: str = None
 
 
 class HyperP(Parameters):
@@ -75,6 +76,7 @@ class HyperP(Parameters):
     'work_arr': 'Work Arrangement',
     'seniority': 'Seniority',
   }
+  MAX_TRAINING_STEPS: int = 100
   
 class CMDArgs(Parameters):
   TARGET: str = ['seniority', 'work_arr']
