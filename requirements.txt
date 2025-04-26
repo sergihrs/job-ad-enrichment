@@ -13,3 +13,5 @@ peft
 datasets
 ipykernel
 openpyxl
+requests
+anthropic
