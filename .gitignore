@@ -2,11 +2,10 @@
 data/
 ideas.md
 *.bat
-*.ipynb
 *.csv
 *.png
 .vscode
-JR_main.py
+admin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

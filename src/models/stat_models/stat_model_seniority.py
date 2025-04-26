@@ -5,35 +5,16 @@ import os
 import re
 
 
-
-def _get_seniority_text(salary_dev: pd.DataFrame) -> str:
-  salary_dev['job_ad_details'] = clean_html(salary_dev['job_ad_details'])
-  
-  text = (
-    (
-        salary_dev['job_title']
-        + ' '
-        + salary_dev['job_summary']
-        + ' '
-        + salary_dev['job_ad_details']
-    )
-    .astype(str)
-    .str.strip()
-    .str.lower()
-  )
-
-  return text
-
-
 def _get_stat_model_seniority(seniority_text: str) -> None:
-  for keyword in HyperP.SENIORITY_KEYWORDS:
-    if keyword in seniority_text:
-      return keyword
+  for level, keywords in HyperP.SENIORITY_KEYWORDS.items():
+    for keyword in keywords:
+      if keyword in seniority_text:
+        return level
           
   return HyperP.SENIORITY_DEFAULT
 
 
-def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame, do_group: bool=False) -> None:
+def _seniority_rule_based(seniority_dev: pd.DataFrame, do_group: bool=False) -> None:
   """Predict the frequency of salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the frequency from.
@@ -41,26 +22,20 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame, do_group: bool=Fal
   Returns:
     pd.Series[str]: The predicted frequency.
   """
-  text = _get_seniority_text(seniority_dev)
-  predictions = text.apply(_get_stat_model_seniority)
+  predictions = seniority_dev['consolidated_fields'].apply(_get_stat_model_seniority)
   
   if do_group:
-    seniority_mapping = pd.read_excel("./notebooks/seniority_mapping.xlsx")
+    seniority_dev['actual'] = seniority_dev['y_true_grouped']
+    seniority_grouping = pd.read_excel('./src/data/y_true_grouping.xlsx', sheet_name='seniority')
     # Apply the mapping to predictions and to seniority_dev['y_true_merged']
-    mapping_dict = dict(zip(seniority_mapping['y_true'], seniority_mapping['y_true_grouped']))
-    predictions = predictions.map(mapping_dict)
-    seniority_dev['y_true_merged'] = seniority_dev['y_true_merged'].map(mapping_dict)
-    
-    new_df = pd.DataFrame({
-      'y_true': seniority_dev['y_true_merged'],
-      'predictions': predictions,
-    })
-    new_df.to_csv('a.csv', index=False)
-    
+    mapping_dict = dict(zip(seniority_grouping['y_true'], seniority_grouping['y_true_grouped']))
+    predictions = predictions.map(mapping_dict)   
+  else:
+    seniority_dev['actual'] = seniority_dev['y_true']
   
-  seniority_dev['correct'] = predictions == seniority_dev['y_true_merged']
-  accuracy_by_seniority = seniority_dev.groupby('y_true_merged').agg(
-    count=('y_true_merged', 'size'),
+  seniority_dev['correct'] = predictions == seniority_dev['actual']
+  accuracy_by_seniority = seniority_dev.groupby('actual').agg(
+    count=('actual', 'size'),
     sum=('correct', 'sum'),
   )
   accuracy_by_seniority['accuracy'] = accuracy_by_seniority['sum'] / accuracy_by_seniority['count']
@@ -68,11 +43,11 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame, do_group: bool=Fal
 
   # Save to CSV
   accuracy_by_seniority.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL1 {do_group} seniority_lookup_individual_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'seniority_rule_based_grouped_{do_group}_indiv.csv'),
     index=True
   )
   pd.DataFrame({'overall_accuracy': [overall_accuracy]}).to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL2 {do_group} seniority_lookup_overall_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'seniority_rule_based_grouped_{do_group}_overall.csv'),
     index=False
   )
   return seniority_dev
@@ -80,8 +55,8 @@ def _stat_model_seniority_lookup(seniority_dev: pd.DataFrame, do_group: bool=Fal
 
 def stat_model_seniority(seniority_dev: pd.DataFrame) -> None:
   stat_model_classifier(seniority_dev, 'seniority')
-  _stat_model_seniority_lookup(seniority_dev, do_group=False)
-  _stat_model_seniority_lookup(seniority_dev, do_group=True)
+  _seniority_rule_based(seniority_dev, do_group=False)
+  _seniority_rule_based(seniority_dev, do_group=True)
   
 
 if __name__ == '__main__':

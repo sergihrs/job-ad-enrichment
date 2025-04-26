@@ -15,3 +15,4 @@ ipykernel
 openpyxl
 requests
 anthropic
+argparse

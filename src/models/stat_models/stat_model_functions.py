@@ -26,7 +26,7 @@ def clean_html(html_content: pd.Series) -> str:
   # # Retain only words that are in the English dictionary
   # words = ' '.join([word for word in words if word.lower() in english_words])
 
-  # Remove html tags from job_ad_details
+  # Remove html tags from job_ad_details  
   html_content_cleaned = html_content.str.replace(
       r"<[^>]+>", " ", regex=True
   )
@@ -90,10 +90,7 @@ def stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
   
   Returns:
       None: Just saves the accuracy results by y_true classification.
-  """
-  # Preprocess
-  data['job_ad_details'] = clean_html(data['job_ad_details'])
-  
+  """ 
   # Model
   train, val = train_test_split(data, test_size=HyperP.VAL_SIZE, random_state=MetaP.RANDOM_SEED)
   model = _train_classifier_on_tf_idf(train['job_ad_details'], train['y_true'])
@@ -111,11 +108,11 @@ def stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
 
   # Save to CSV
   accuracy_by_level.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL1 {dataset_type}_individual_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'{dataset_type}_stat_based_indiv.csv'),
     index=True
   )
   pd.DataFrame({'overall_accuracy': [overall_accuracy]}).to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL2 {dataset_type}_overall_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'{dataset_type}_stat_based_overall.csv'),
     index=False
   )
 

@@ -29,7 +29,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   plt.ylabel('Frequency')
   plt.title('Salary Distribution - Annual Salaries')
   plt.legend()
-  plt.savefig(f'{MetaP.REPORT_DIR}/SAL1.1 salary_dev_annual_salary_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_annual_salary_distribution.png')
 
   # Hourly
   hourly_data = salary_dev[salary_dev['y_true_frequency'] == 'HOURLY']
@@ -47,7 +47,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   plt.ylabel('Frequency')
   plt.title('Salary Distribution - Hourly Wages')
   plt.legend()
-  plt.savefig(f'{MetaP.REPORT_DIR}/SAL1.2 salary_dev_hourly_salary_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_hourly_salary_distribution.png')
 
 
   # Average annual salary by currency
@@ -59,7 +59,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   avg_annual_by_currency = avg_annual_by_currency.groupby('y_true_currency')['y_true_salary_min'].agg(statistics).reset_index()
   avg_annual_by_currency = avg_annual_by_currency.sort_values(by='mean', ascending=False)
   avg_annual_by_currency[statistics] = avg_annual_by_currency[statistics].astype(int)
-  avg_annual_by_currency.to_csv(f'{MetaP.REPORT_DIR}/SAL2.1 salary_dev_avg_annual_by_currency.csv', index=False)
+  avg_annual_by_currency.to_csv(f'{MetaP.REPORT_DIR}/eda_salary_dev_avg_annual_by_currency.csv', index=False)
   
   avg_hourly_by_currency = salary_dev.dropna(subset=['y_true_currency', 'y_true_salary_min'])
   avg_hourly_by_currency = avg_hourly_by_currency[avg_hourly_by_currency['y_true_frequency'] == 'HOURLY']
@@ -67,7 +67,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   avg_hourly_by_currency = avg_hourly_by_currency.groupby('y_true_currency')['y_true_salary_min'].agg(statistics).reset_index()
   avg_hourly_by_currency = avg_hourly_by_currency.sort_values(by='mean', ascending=False)
   avg_hourly_by_currency[statistics] = avg_hourly_by_currency[statistics].astype(int)
-  avg_hourly_by_currency.to_csv(f'{MetaP.REPORT_DIR}/SAL2.2 salary_dev_avg_hourly_by_currency.csv', index=False)
+  avg_hourly_by_currency.to_csv(f'{MetaP.REPORT_DIR}/eda_salary_dev_avg_hourly_by_currency.csv', index=False)
 
 def _summarise_work_arrangement_data(work_arr_dev: pd.DataFrame) -> None:
   """
@@ -85,7 +85,7 @@ def _summarise_work_arrangement_data(work_arr_dev: pd.DataFrame) -> None:
   plt.xlabel('Work Arrangement')
   plt.ylabel('Frequency')
   plt.title('Work Arrangement Distribution')
-  plt.savefig(f'{MetaP.REPORT_DIR}/WORKARR1 work_arr_dev_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_work_arr_dev_distribution.png')
 
 
 def _summarise_seniority_data(seniority_dev: pd.DataFrame) -> None:
@@ -104,9 +104,9 @@ def _summarise_seniority_data(seniority_dev: pd.DataFrame) -> None:
   plt.xlabel('Seniority Level')
   plt.ylabel('Frequency')
   plt.title('Seniority Distribution')
-  plt.savefig(f'{MetaP.REPORT_DIR}/SEN1 seniority_dev_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution.png')
 
-  seniority_dev['y_true'].value_counts().to_csv(f'{MetaP.REPORT_DIR}/SEN2 seniority_dev_distribution.csv', index=True)
+  seniority_dev['y_true'].value_counts().to_csv(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution.csv', index=True)
 
 
 

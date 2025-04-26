@@ -27,7 +27,7 @@ def _get_salary_text(salary_dev: pd.DataFrame) -> str:
 
   return text
 
-def _get_stat_model_salary_freq(salary_text: str) -> None:
+def _get_salary_freq_rule_based(salary_text: str) -> None:
   for freq, keywords in HyperP.FREQ_KEYWORDS.items():
     for keyword in keywords:
       # Use regex to match \bkeyword\b to avoid partial matches
@@ -37,7 +37,7 @@ def _get_stat_model_salary_freq(salary_text: str) -> None:
   return HyperP.FREQ_DEFAULT
 
 
-def _stat_model_salary_freq(salary_dev: pd.DataFrame) -> None:
+def _salary_freq_rule_based(salary_dev: pd.DataFrame) -> None:
   """Predict the frequency of salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the frequency from.
@@ -46,11 +46,11 @@ def _stat_model_salary_freq(salary_dev: pd.DataFrame) -> None:
     pd.Series[str]: The predicted frequency.
   """
   text = _get_salary_text(salary_dev)
-  frequencies = text.apply(_get_stat_model_salary_freq)
+  frequencies = text.apply(_get_salary_freq_rule_based)
   return frequencies
 
 
-def _stat_model_salary_currency(salary_dev: pd.DataFrame) -> str:
+def _salary_curr_rule_based(salary_dev: pd.DataFrame) -> str:
   """Predict the currency of salary based on the country code.
   Args:
     x (pd.DataFrame): The salary dev data
@@ -68,7 +68,7 @@ def _stat_model_salary_currency(salary_dev: pd.DataFrame) -> str:
   return currency_code
 
 
-def _get_stat_model_salary_amount(text: str) -> float:
+def _get_salary_amount_rule_based(text: str) -> float:
   """Predict the amount of salary based on the text.
   Args:
     x (pd.Series): The row of the dataframe containing the text.
@@ -124,7 +124,7 @@ def _get_stat_model_salary_amount(text: str) -> float:
 
   return 0.0  # Default value if no match is found
 
-def _stat_model_salary_amount(salary_dev: pd.DataFrame) -> None:
+def _salary_amount_rule_based(salary_dev: pd.DataFrame) -> None:
   """Predict the salary amount based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the salary amount from.
@@ -133,11 +133,11 @@ def _stat_model_salary_amount(salary_dev: pd.DataFrame) -> None:
     pd.Series[(float, float)]: The predicted min and max salary amounts.
   """
   text = _get_salary_text(salary_dev)
-  salaries = text.apply(_get_stat_model_salary_amount)
+  salaries = text.apply(_get_salary_amount_rule_based)
   return salaries
 
 
-def stat_model_salary(salary_dev: pd.DataFrame) -> None:
+def _salary_rule_based(salary_dev: pd.DataFrame) -> None:
   """Predict the salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the salary from.
@@ -146,13 +146,13 @@ def stat_model_salary(salary_dev: pd.DataFrame) -> None:
     pd.DataFrame: The predicted salary.
   """
    # Predict frequency
-  salary_dev['y_pred_frequency'] = _stat_model_salary_freq(salary_dev)
+  salary_dev['y_pred_frequency'] = _salary_freq_rule_based(salary_dev)
 
   # Predict currency
-  salary_dev['y_pred_currency'] = _stat_model_salary_currency(salary_dev)
+  salary_dev['y_pred_currency'] = _salary_curr_rule_based(salary_dev)
 
   # Predict amount
-  salary_min_and_max = _stat_model_salary_amount(salary_dev)
+  salary_min_and_max = _salary_amount_rule_based(salary_dev)
   salary_dev['y_pred_salary_min'] = salary_min_and_max.apply(lambda x: x[0])
   salary_dev['y_pred_salary_max'] = salary_min_and_max.apply(lambda x: x[1])
 
@@ -208,30 +208,29 @@ def stat_model_salary(salary_dev: pd.DataFrame) -> None:
   })
 
   overall_stats.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL3.1 salary_overall_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'salary_overall_accuracy.csv'),
     index=True
   )
 
   accuracy_by_currency.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL3.2 salary_currency_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'salary_rule_based_currency_accruracy.csv'),
     index=True
   )
 
   accuracy_by_frequency.to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL3.3 salary_frequency_accuracy.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'salary_rule_based_freq_accuracy.csv'),
     index=True
   )
 
   salary_dev[['y_true_salary_min', 'y_true_salary_max', 'y_true_currency', 'y_true_frequency', 'y_true', \
     'y_pred_salary_min', 'y_pred_salary_max', 'y_pred_currency', 'y_pred_frequency', 'y_pred']].to_csv(
-    os.path.join(MetaP.REPORT_DIR, f'STATMODEL3 salary_predictions.csv'),
+    os.path.join(MetaP.STAT_MODELS_DIR, f'salary_rule_based_predictions.csv'),
     index=False
   )
 
-
   
-
-
+def stat_model_salary(salary_dev: pd.DataFrame) -> None:
+  _salary_rule_based(salary_dev)
   
 
 if __name__ == '__main__':
