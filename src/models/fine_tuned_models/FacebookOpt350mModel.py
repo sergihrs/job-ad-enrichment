@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from transformers import Trainer, TrainingArguments, DataCollatorWithPadding
 import os
 
-class FacebookOpt359mModel:
+class FacebookOpt350mModel:
   def __init__(
     self,
     dataset_name: str,
@@ -129,32 +129,3 @@ class FacebookOpt359mModel:
     })
     predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, f'{self.dataset_name}_val_predictions.csv'), index=False)
 
-def _get_models(data: dict[pd.DataFrame]) -> dict[FacebookOpt359mModel]:
-  """
-  Get the models for the facebook_opt359m model.
-  :param datasets: Dictionary of DataFrames with prepared data.
-  :return: Dictionary of models.
-  """
-  models = {}
-  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_FACEBOOK_OPT350M.items():
-    train_data = data[train_data_name]
-    test_data = data[test_data_name]
-    
-    models[dataset_name] = FacebookOpt359mModel(dataset_name, train_data=train_data, val_data=test_data)
-  
-  return models
-
-
-def run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
-  """
-  Train the facebook_opt359m model.
-  """
-  models = _get_models(data)
-  
-  for model in models.values():
-    model.setup_and_train()
-    model.save_model()
-  
-
-if __name__ == '__main__':
-  pass
