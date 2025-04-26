@@ -1,5 +1,6 @@
 # Own
-data/
+/data/
+!/src/data/
 ideas.md
 *.bat
 *.csv
