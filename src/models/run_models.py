@@ -62,6 +62,7 @@ def run_bert(data: dict[pd.DataFrame]) -> None:
 def run_facebook_opt359m(
   data: dict[pd.DataFrame],
   test_data: pd.DataFrame=None,
+  model_name: str=None
 ) -> None:
   """
   Train the Facebook Opt 350m model on the given datasets.
@@ -69,6 +70,9 @@ def run_facebook_opt359m(
   
   print('Running Facebook Opt 350m model...')
   for dataset_name, (train_data_name, test_data_name) in HyperP.DATASETS_FOR_FINE_TUNED_MODELS.items():
+    if model_name is not None and dataset_name != model_name:
+      continue
+    
     train_data = data[train_data_name]
     test_data = data[test_data_name]
     
@@ -77,8 +81,8 @@ def run_facebook_opt359m(
     model.save_model()
     model.predict()
   
-  if test_data is not None:
-    return model.predict(test_data)
+    if test_data is not None:
+      return model.predict(test_data)
 
 
 def run_stat_models(data: dict[pd.DataFrame]) -> None:
