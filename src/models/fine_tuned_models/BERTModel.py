@@ -116,7 +116,7 @@ class BERTModel:
     
   def setup_and_train(self):
     self._tokenise()
-    # self._set_peft_model()
+    self._set_peft_model()
     self._preprocess_inputs()
     self._train()
     

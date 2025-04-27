@@ -21,6 +21,7 @@ class MetaP(Parameters):
   DATASETS_FOR_LLMS: dict[tuple[str, str]] = {
     'work_arr': ('work_arr_dev', 'work_arr_test'),
     'seniority': ('seniority_dev', 'seniority_test'),
+    'salary': ('salary_dev', 'salary_test'),
   }
   ANTHROPIC_API_KEY: str = None
 
