@@ -34,7 +34,7 @@ def run_claude_haiku(data: dict[pd.DataFrame]) -> None:
       model = ClaudeHaikuModel(dataset_name, client, prompt_start)
       model.setup_and_train()
       model.save_model()
-      model.predict(test_data.head(5))
+      model.predict(test_data)
       
   except Exception as e:
     print(f"Error connecting to Anthropic API: {e}")

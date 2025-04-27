@@ -12,7 +12,7 @@ def _run_all(data):
   print('Running all models...')
   conduct_EDA(data)
   run_stat_models(data)
-  run_fine_tuned_models(data)
+  # run_fine_tuned_models(data)
   run_proprietary_models(data)
   
 def _run_one(data):

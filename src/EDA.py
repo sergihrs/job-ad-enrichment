@@ -29,7 +29,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   plt.ylabel('Frequency')
   plt.title('Salary Distribution - Annual Salaries')
   plt.legend()
-  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_annual_salary_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_annual_salary_distribution.png', bbox_inches='tight')
 
   # Hourly
   hourly_data = salary_dev[salary_dev['y_true_frequency'] == 'HOURLY']
@@ -47,7 +47,7 @@ def _summarise_salary_data(salary_dev: pd.DataFrame) -> None:
   plt.ylabel('Frequency')
   plt.title('Salary Distribution - Hourly Wages')
   plt.legend()
-  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_hourly_salary_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_salary_dev_hourly_salary_distribution.png', bbox_inches='tight')
 
 
   # Average annual salary by currency
@@ -85,7 +85,7 @@ def _summarise_work_arrangement_data(work_arr_dev: pd.DataFrame) -> None:
   plt.xlabel('Work Arrangement')
   plt.ylabel('Frequency')
   plt.title('Work Arrangement Distribution')
-  plt.savefig(f'{MetaP.REPORT_DIR}/eda_work_arr_dev_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_work_arr_dev_distribution.png', bbox_inches='tight')
 
 
 def _summarise_seniority_data(seniority_dev: pd.DataFrame) -> None:
@@ -104,9 +104,18 @@ def _summarise_seniority_data(seniority_dev: pd.DataFrame) -> None:
   plt.xlabel('Seniority Level')
   plt.ylabel('Frequency')
   plt.title('Seniority Distribution')
-  plt.savefig(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution.png')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution.png', bbox_inches='tight')
 
   seniority_dev['y_true'].value_counts().to_csv(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution.csv', index=True)
+  
+  # Apply mapping and then redo
+  seniority_grouping = pd.read_excel('./src/data/y_true_grouping.xlsx', sheet_name='seniority')
+  pd.merge(seniority_dev, seniority_grouping, how='left', left_on='y_true', right_on='y_true')
+  seniority_dev['y_true_grouped'].value_counts().plot(kind='bar')
+  plt.xlabel('Seniority Level')
+  plt.ylabel('Frequency')
+  plt.title('Seniority Distribution')
+  plt.savefig(f'{MetaP.REPORT_DIR}/eda_seniority_dev_distribution_grouped.png', bbox_inches='tight')
 
 
 
