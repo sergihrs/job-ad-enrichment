@@ -14,7 +14,7 @@ class ClaudeHaikuModel:
     self.name = 'claude'
     self.dataset_name = dataset_name
     self.prompt_start = prompt_start
-    self.x_column_name = 'job_ad_details'
+    self.x_column_name = 'consolidated_fields'
     self.y_column_name = 'y_true_grouped'
     self.client = client
     

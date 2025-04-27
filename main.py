@@ -12,12 +12,10 @@ def _run_all(data):
   print('Running all models...')
   conduct_EDA(data)
   run_stat_models(data)
-  # run_fine_tuned_models(data)
-  # run_proprietary_models(data)
+  run_fine_tuned_models(data)
+  run_proprietary_models(data)
   
 def _run_one(data):
-  print('TESTDATA:')
-  print(data['test_data'])
   if CMDArgs.STAT:
     if CMDArgs.TARGET == 'seniority':
       print('Running seniority statistical model...')

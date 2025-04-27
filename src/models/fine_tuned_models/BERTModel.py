@@ -21,7 +21,7 @@ class BERTModel:
     self.name = 'bert'
     self.dataset_name = dataset_name
     self.model_name = 'bert-base-uncased'
-    self.x_column_name = 'job_ad_details'
+    self.x_column_name = 'consolidated_fields'
     self.y_column_name = 'y_true_grouped'
     
     os.makedirs(os.path.join(MetaP.MODELS_DIR, self.name), exist_ok=True)
