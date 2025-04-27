@@ -4,6 +4,7 @@ from src.config import MetaP, CMDArgs
 
 print('Importing Anthropic. Could take some time...')
 from anthropic import Anthropic
+import getpass
 
 def verify_file(file_path) -> None:
   """
@@ -73,7 +74,7 @@ def connect_to_anthropic() -> str:
   print("Connecting to Anthropic API...")
   api_key = os.getenv('ANTHROPIC_API_KEY')
   if not api_key:
-    api_key = input("Enter your Anthropic API key: ")
+    api_key = getpass.getpass('Enter your Anthropic API key: ')
   
   # Attempt to connect to the Anthropic API by making a simple API call
   client = Anthropic(api_key=api_key)

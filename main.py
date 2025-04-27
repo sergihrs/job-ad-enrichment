@@ -4,8 +4,6 @@ from src.models.run_models import run_stat_models, run_fine_tuned_models
 from src.ancillary_functions import setup
 from src.config import MetaP, CMDArgs
 
-from src.ancillary_functions import connect_to_anthropic
-
 def main():
   setup()
   

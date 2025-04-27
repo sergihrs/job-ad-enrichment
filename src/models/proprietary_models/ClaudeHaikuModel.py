@@ -7,14 +7,12 @@ class ClaudeHaikuModel:
   def __init__(
     self,
     dataset_name: str,
-    data: pd.DataFrame,
     client: Anthropic,
   ):
     self.name = 'claude'
     self.dataset_name = dataset_name
     self.x_column_name = 'job_ad_details'
     self.y_column_name = 'y_true_grouped'
-    self.data= data
     
     self._get_prompts()
     self.client = client
@@ -23,10 +21,11 @@ class ClaudeHaikuModel:
   def n_labels(self) -> int:
     return len(self.label_to_id)
   
-  def _get_prompts(self) -> None:
-    job_ads = list(self.data[self.x_column_name])
+  def _get_prompts(self, input: pd.DataFrame) -> None:
+    job_ads = list(input[self.x_column_name])
     prompts = ["Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only:\n" + job_ad + "'\nAnswer:" for job_ad in job_ads]
-    self.prompt_data = pd.DataFrame({'prompt': prompts})
+    prompts_df = pd.DataFrame({'prompt': prompts})
+    return prompts_df
     
   def _train(self):
     # No training is done here, as the model is already trained.
@@ -53,7 +52,8 @@ class ClaudeHaikuModel:
       )
       return response.content[0].text
 
-    response = self.prompt_data.apply(query_claude)
+    prompt_data = self._get_prompts(input)
+    response = prompt_data.apply(query_claude)
     predictions = self._get_predictions(response)
     # Apply the trained model on val_data
     predictions = self.trainer.predict(self.val_data)
