@@ -120,7 +120,7 @@ class FacebookOpt350mModel:
     self._preprocess_inputs()
     self._train()
     
-  def predict(self, input: pd.DataFrame) -> pd.DataFrame:
+  def predict(self) -> pd.DataFrame:
     # Apply the trained model on val_data
     predictions = self.trainer.predict(self.val_data)
     preds = predictions.predictions.argmax(-1)
@@ -131,4 +131,10 @@ class FacebookOpt350mModel:
         "labels": labels
     })
     predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
+    
+    accuracy_per_label = predictions_df.groupby("labels").apply(lambda g: (g["predictions"] == g["labels"]).mean())
+    accuracy_df = accuracy_per_label.reset_index()
+    accuracy_df.columns = ["label", "accuracy"]
+    accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
+    
 

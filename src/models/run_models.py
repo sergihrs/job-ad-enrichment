@@ -47,6 +47,7 @@ def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
     model = FacebookOpt350mModel(dataset_name, train_data=train_data, val_data=test_data)
     model.setup_and_train()
     model.save_model()
+    model.predict(test_data)
 
 
 def run_stat_models(data: dict[pd.DataFrame]) -> None:
@@ -56,7 +57,7 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
-  # _run_facebook_opt359m(data)
+  _run_facebook_opt359m(data)
   _run_claude_haiku(data)
 
 if __name__ == '__main__':

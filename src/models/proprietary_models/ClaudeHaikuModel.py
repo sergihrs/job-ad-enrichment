@@ -2,6 +2,7 @@ from anthropic import Anthropic
 import pandas as pd
 from src.config import MetaP
 import os
+from sklearn.metrics import accuracy_score
 
 class ClaudeHaikuModel:
   def __init__(
@@ -66,4 +67,11 @@ class ClaudeHaikuModel:
     })
     predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
     
+    # Get accuracy by label
+    predictions_df['predictions'] = predictions_df['predictions'].str.strip().str.lower()
+    
+    accuracy_per_label = predictions_df.groupby("labels").apply(lambda g: (g["predictions"] == g["labels"]).mean())
+    accuracy_df = accuracy_per_label.reset_index()
+    accuracy_df.columns = ["label", "accuracy"]
+    accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
 
