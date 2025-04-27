@@ -10,24 +10,40 @@ import getpass
 
 def get_bad_predictions(
   model_name: str,
-  x_field: pd.Series,
   predictions_df: pd.DataFrame,
 ) -> None:
   """
   Extract the first few bad predictions from the validation data and save them to a CSV file.
   """
-  print(predictions_df)
-  print(type(predictions_df))
-  print(predictions_df.columns)
-  print(predictions_df.shape)
-  print(predictions_df['labels'])
-  print(predictions_df['predictions'])
-  print(predictions_df['labels'] != predictions_df['predictions'])
-  print(predictions_df['labels'][predictions_df['labels'] != predictions_df['predictions']])
-  print(type(predictions_df['labels'][np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])]))
+  # print(predictions_df)
+  # print(type(predictions_df))
+  # print(predictions_df.columns)
+  # print(predictions_df.shape)
+  # print(predictions_df['labels'])
+  # print(predictions_df['predictions'])
+  # print(predictions_df['labels'] != predictions_df['predictions'])
+  # print(predictions_df['labels'][predictions_df['labels'] != predictions_df['predictions']])
+  # print(type(x_field['labels'][np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])]))
   
-  bad_predictions = predictions_df['labels'][np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])].head(5)
-  bad_predictions.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'bad_predictions_{model_name}.csv'), index=False)
+  # np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])
+  # mask = np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])
+
+  # # Get the integer indices where the mask is True
+  # bad_predictions_indices = np.where(mask)[0]
+  
+  # x = x_field.iloc[bad_predictions_indices]
+  # y = predictions_df.iloc[bad_predictions_indices]
+  
+  mask = np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])
+  first_five_indices = np.where(mask)[0][:5]
+
+  bad_rows = predictions_df.iloc[first_five_indices]
+  
+  
+
+  
+  # bad_predictions = x_field['labels'][].head(5)
+  bad_rows.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'{model_name}_bad_predictions.csv'), index=False)
 
 def verify_file(file_path) -> None:
   """
