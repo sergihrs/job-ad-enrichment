@@ -73,7 +73,7 @@ class FacebookOpt350mModel:
     
   def _preprocess_inputs(self) -> dict:
     def preprocess(input: Dataset) -> dict:
-      prompt = f'{self.prompt_start}{input[self.x_column_name]}{{self.prompt_end}}'
+      prompt = f'{self.prompt_start}{input[self.x_column_name]}{self.prompt_end}'
 
       tokenised = self.tokeniser(prompt, padding='max_length', truncation=True, max_length=128)
       tokenised['label'] = input['label']
@@ -132,6 +132,18 @@ class FacebookOpt350mModel:
       data_for_prediction = test_data[[self.x_column_name, self.y_column_name]].copy()
       data_for_prediction['label'] = data_for_prediction[self.y_column_name].map(self.label_to_id)
       data_for_prediction = Dataset.from_pandas(data_for_prediction)
+      
+      self.val_data_x_column = test_data[self.x_column_name].copy()
+      data_for_prediction = data_for_prediction.map(lambda samples: self.tokeniser(samples[self.x_column_name]), batched=True)
+      
+      def preprocess(input: Dataset) -> dict:
+        prompt = f'{self.prompt_start}{input[self.x_column_name]}{self.prompt_end}'
+
+        tokenised = self.tokeniser(prompt, padding='max_length', truncation=True, max_length=128)
+        tokenised['label'] = input['label']
+        return tokenised
+      
+      data_for_prediction = data_for_prediction.map(preprocess, remove_columns=data_for_prediction.column_names)
       
     # Apply the trained model on val_data
     predictions = self.trainer.predict(data_for_prediction)
