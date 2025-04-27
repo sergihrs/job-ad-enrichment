@@ -15,13 +15,6 @@ def get_bad_predictions(
   """
   Extract the first few bad predictions from the validation data and save them to a CSV file.
   """
-  print(type(predictions))
-  print(predictions.columns)
-  print(predictions.head(5))
-  print(type(x_field))
-  print(x_field)
-  
-
   bad_predictions = x_field[predictions['labels'] != predictions['predictions']].head(5)
   bad_predictions.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'bad_predictions_{model_name}.csv'), index=False)
 
