@@ -22,8 +22,6 @@ class MetaP(Parameters):
     'work_arr': ('work_arr_dev', 'work_arr_test'),
     'seniority': ('seniority_dev', 'seniority_test'),
   }
-  CLAUDE_SENIORITY_PROMPT_START: str = "Classify the following text as either 'junior', 'mid-level' or 'senior'. Respond with one word only"
-  CLAUDE_WORK_ARR_PROMPT_START: str = "Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only"
   ANTHROPIC_API_KEY: str = None
 
 
@@ -74,11 +72,16 @@ class HyperP(Parameters):
     'classification_name',
     'subclassification_name'
   ]
+  CLAUDE_PROMPT_STARTS: dict[str] = {
+    'work_arr': "Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only",
+    'seniority': "Classify the following text as either 'junior', 'mid-level' or 'senior'. Respond with one word only",
+    'salary': "Parse the following job ad into the following format: MIN_PAY-MAX_PAY-CURRENCY-FREQUENCY. Respond in exactly this format. If the job ad does not contain a salary, respond with '0-0-None-None'",
+  }
   FACEBOOK_OPT350M_PROMPTS: dict[str] = {
     'work_arr': 'Work Arrangement',
     'seniority': 'Seniority',
   }
-  MAX_TRAINING_STEPS: int = 1
+  MAX_TRAINING_STEPS: int = 100
   
 class CMDArgs(Parameters):
   TARGET: str = ['seniority', 'work_arr']

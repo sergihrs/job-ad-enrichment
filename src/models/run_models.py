@@ -5,7 +5,7 @@ from src.models.stat_models.stat_model_seniority import stat_model_seniority
 from src.models.fine_tuned_models.FacebookOpt350mModel import FacebookOpt350mModel
 from src.models.fine_tuned_models.BERTModel import BERTModel
 from src.models.proprietary_models.ClaudeHaikuModel import ClaudeHaikuModel
-from src.config import MetaP
+from src.config import MetaP, HyperP
 from src.ancillary_functions import connect_to_anthropic
 
 
@@ -20,7 +20,7 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
       # Only testing data for this Claude model
       test_data = data[test_data_name]
       
-      prompt_start = MetaP.CLAUDE_SENIORITY_PROMPT_START if dataset_name == 'seniority' else MetaP.CLAUDE_WORK_ARR_PROMPT_START
+      prompt_start = HyperP.CLAUDE_PROMPT_STARTS[dataset_name]
       
       model = ClaudeHaikuModel(dataset_name, client, prompt_start)
       model.setup_and_train()
@@ -74,10 +74,11 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
   _run_bert(data)
-  _run_facebook_opt359m(data)
+  # _run_facebook_opt359m(data)
   
 def run_proprietary_models(data: dict[pd.DataFrame]) -> None:
-  _run_claude_haiku(data)
+  # _run_claude_haiku(data)
+  pass
 
 if __name__ == '__main__':
   pass
