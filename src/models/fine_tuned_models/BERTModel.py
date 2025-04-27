@@ -56,6 +56,7 @@ class BERTModel:
     self.val_data = Dataset.from_pandas(val_data)
     
   def _tokenise(self):
+    self.val_data_y_column = self.val_data[self.y_column_name].copy()
     self.train_data = self.train_data.map(lambda samples: self.tokeniser(samples[self.x_column_name], padding='max_length', truncation=True), batched=True)
     self.val_data = self.val_data.map(lambda samples: self.tokeniser(samples[self.x_column_name], padding='max_length', truncation=True), batched=True)
     
@@ -138,12 +139,9 @@ class BERTModel:
     accuracy_df.columns = ["label", "accuracy"]
     accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
     
-    print(type(self.val_data))
-    print(self.val_data.column_names)
-    
     get_bad_predictions(
       model_name=self.name,
-      x_field=self.val_data[self.x_column_name],
+      x_field=self.val_data_y_column,
       predictions=predictions
     )
     
