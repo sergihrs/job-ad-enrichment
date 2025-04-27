@@ -35,15 +35,11 @@ def get_bad_predictions(
   # y = predictions_df.iloc[bad_predictions_indices]
   
   mask = np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])
-  first_five_indices = np.where(mask)[0][:5]
-
-  bad_rows = predictions_df.iloc[first_five_indices]
-  
-  
-
-  
-  # bad_predictions = x_field['labels'][].head(5)
-  bad_rows.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'{model_name}_bad_predictions.csv'), index=False)
+  mismatches = predictions_df[mask]
+  mismatches['error_type'] = list(zip(mismatches['labels'], mismatches['predictions']))
+  one_example_per_error_type = mismatches.drop_duplicates(subset='error_type')
+  one_example_per_error = one_example_per_error_type.drop(columns=['error_type'])
+  one_example_per_error_type.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'{model_name}_bad_predictions.csv'), index=False)
 
 def verify_file(file_path) -> None:
   """
