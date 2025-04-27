@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from transformers import Trainer, TrainingArguments, DataCollatorWithPadding
 import os
+from src.ancillary_functions import get_bad_predictions
 
 class BERTModel:
   def __init__(
@@ -136,5 +137,7 @@ class BERTModel:
     accuracy_df = accuracy_per_label.reset_index()
     accuracy_df.columns = ["label", "accuracy"]
     accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
+    
+    get_bad_predictions(self.name, self.val_data, predictions)
     
 
