@@ -72,7 +72,7 @@ class BERTModel:
     
   def _preprocess_inputs(self) -> dict:
     def preprocess(input: Dataset) -> dict:
-      prompt = f'{self.prompt_start}{input["job_ad_details"]}{self.prompt_end}'
+      prompt = f'{self.prompt_start}{input[self.x_column_name]}{self.prompt_end}'
 
       tokenised = self.tokeniser(prompt, padding='max_length', truncation=True, max_length=128)
       tokenised['label'] = input['label']
@@ -138,6 +138,10 @@ class BERTModel:
     accuracy_df.columns = ["label", "accuracy"]
     accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
     
-    get_bad_predictions(self.name, self.val_data.to_pandas(), predictions)
+    get_bad_predictions(
+      model_name=self.name,
+      x_field=self.val_data[self.x_column_name],
+      predictions=predictions
+    )
     
 

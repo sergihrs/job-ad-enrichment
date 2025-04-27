@@ -71,7 +71,7 @@ class FacebookOpt350mModel:
     
   def _preprocess_inputs(self) -> dict:
     def preprocess(input: Dataset) -> dict:
-      prompt = f'{self.prompt_start}{input["job_ad_details"]}{{self.prompt_end}}'
+      prompt = f'{self.prompt_start}{input[self.x_column_name]}{{self.prompt_end}}'
 
       tokenised = self.tokeniser(prompt, padding='max_length', truncation=True, max_length=128)
       tokenised['label'] = input['label']

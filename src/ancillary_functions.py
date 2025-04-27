@@ -9,18 +9,17 @@ import getpass
 
 def get_bad_predictions(
   model_name: str,
-  validation_data: pd.DataFrame,
+  x_field: pd.Series,
   predictions: pd.DataFrame,
 ) -> None:
   """
   Extract the first few bad predictions from the validation data and save them to a CSV file.
   """
-  print(type(validation_data))
-  print(validation_data)
-  print(validation_data.shape)
+  print(type(x_field))
+  print(x_field)
   
 
-  bad_predictions = validation_data[validation_data['y_true_grouped'] != predictions['y_pred']].head(5)
+  bad_predictions = x_field.iloc[predictions['labels'] != predictions['predictions']].head(5)
   bad_predictions.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'bad_predictions_{model_name}.csv'), index=False)
 
 def verify_file(file_path) -> None:
