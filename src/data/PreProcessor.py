@@ -62,7 +62,7 @@ class PreProcessor:
     self,
     field_names_to_consolidate: list[str]=HyperP.FIELD_NAMES_TO_CONSOLIDATE,
   ):
-    for dataset_name in self.data:
+    for dataset_name in self.data:        
       for field_name in field_names_to_consolidate:
         if field_name in self.data[dataset_name].columns:
           self.data[dataset_name][field_name] = clean_html(self.data[dataset_name][field_name])
@@ -78,15 +78,18 @@ class PreProcessor:
       y_true_grouping = pd.read_excel(xls, sheet_name=None)
       
     for dataset_name in self.data:
-      if 'y_true' in self.data[dataset_name].columns and dataset_name.endswith(('_dev', '_test')):
-        if dataset_name.endswith('_dev'):
-          dataset_basename = dataset_name[:-4]
-        else:
-          dataset_basename = dataset_name[:-5]
-        
-        if dataset_basename in y_true_grouping:
-          # Apply the grouping
-          self.data[dataset_name] = self.data[dataset_name].merge(y_true_grouping[dataset_basename], on='y_true', how='left')
+      if 'y_true' in self.data[dataset_name].columns:
+        if dataset_name.endswith(('_dev', '_test')):
+          if dataset_name.endswith('_dev'):
+            dataset_basename = dataset_name[:-4]
+          else:
+            dataset_basename = dataset_name[:-5]
+          
+          if dataset_basename in y_true_grouping:
+            # Apply the grouping
+            self.data[dataset_name] = self.data[dataset_name].merge(y_true_grouping[dataset_basename], on='y_true', how='left')
+          else:
+            self.data[dataset_name]['y_true_grouped'] = self.data[dataset_name]['y_true']
         else:
           self.data[dataset_name]['y_true_grouped'] = self.data[dataset_name]['y_true']
 

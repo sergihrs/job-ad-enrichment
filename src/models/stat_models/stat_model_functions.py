@@ -115,6 +115,8 @@ def stat_model_classifier(data: pd.DataFrame, dataset_type: str) -> None:
     os.path.join(MetaP.STAT_MODELS_DIR, f'{dataset_type}_stat_based_overall.csv'),
     index=False
   )
+  
+  return model
 
 
 if __name__ == '__main__':

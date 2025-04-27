@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from src.config import MetaP
 from src.data.PreProcessor import PreProcessor
-from src.config import HyperP
+from src.config import HyperP, CMDArgs
 from datasets import Dataset
 
 
@@ -46,24 +46,17 @@ def _split_salary_y_true(salary_data: pd.DataFrame) -> pd.DataFrame:
   return salary_data
 
 
-def _merge_seniority_data(seniority_dev: pd.DataFrame) -> pd.DataFrame:
-  seniority_dev['y_true_merged'] = seniority_dev['y_true'].replace(to_replace=HyperP.SENIORITY_REPLACE)
-
-  # Exclude items in seniority_dev with fewer than 8 counts
-  seniority_dev = seniority_dev[seniority_dev['y_true_merged'].map(seniority_dev['y_true_merged'].value_counts()) >= HyperP.SENIORITY_MIN_COUNT]
-
-  HyperP.SENIORITY_KEYWORDS = seniority_dev['y_true_merged'].unique()
-
-  return seniority_dev
-
-
-def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[object]:
+def load_data(
+  file_path: str=f'./{MetaP.DATA_DIR}/',
+) -> dict[object]:
   """
   Reads the data files from the specified path and returns them as a dictionary.
   file_path: str: The path to the data files.
   Returns:
     all_data: dict: A dictionary containing the dataframes or HuggingFace Datasets.
   """
+  print('Loading data...')
+  
   salary_dev = _read_data_file(file_path=file_path, file_name='salary_labelled_development_set.csv')
   salary_test = _read_data_file(file_path=file_path, file_name='salary_labelled_test_set.csv')
   seniority_dev = _read_data_file(file_path=file_path, file_name='seniority_labelled_development_set.csv')
@@ -87,6 +80,13 @@ def load_data(file_path: str=f'./{MetaP.DATA_DIR}/') -> dict[object]:
     'work_arr_test': work_arr_test,
     'unlabelled_dev': unlabelled_dev,
   }
+  
+  # Also load the test data if provided on cmd line
+  if CMDArgs.FILE is not None:
+    all_data['test_data'] = _read_data_file(file_path='.', file_name=CMDArgs.FILE)
+    
+    if CMDArgs.TARGET == 'salary':
+      all_data['test_data'] = _split_salary_y_true(all_data['test_data'])
 
   return all_data
 
@@ -97,6 +97,7 @@ def preprocess_data(data: dict[pd.DataFrame]) -> dict[pd.DataFrame]:
   Returns:
     data: dict: The preprocessed data.
   """
+  print('Preprocessing data...')
   preprocessor = PreProcessor(data)
   data = preprocessor.clean_data()
   preprocessor.save_log()

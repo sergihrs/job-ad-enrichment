@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from transformers import Trainer, TrainingArguments, DataCollatorWithPadding
 import os
+from src.ancillary_functions import get_bad_predictions
 
 class FacebookOpt350mModel:
   def __init__(
@@ -55,6 +56,7 @@ class FacebookOpt350mModel:
     self.val_data = Dataset.from_pandas(val_data)
     
   def _tokenise(self):
+    self.val_data_x_column = self.val_data[self.x_column_name].copy()
     self.train_data = self.train_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), batched=True)
     self.val_data = self.val_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), batched=True)
     
@@ -120,21 +122,47 @@ class FacebookOpt350mModel:
     self._preprocess_inputs()
     self._train()
     
-  def predict(self) -> pd.DataFrame:
+  def predict(
+    self,
+    test_data: pd.DataFrame=None,
+  ) -> pd.DataFrame:
+    if test_data is None:
+      data_for_prediction = self.val_data
+    else:
+      data_for_prediction = test_data[[self.x_column_name, self.y_column_name]].copy()
+      data_for_prediction['label'] = data_for_prediction[self.y_column_name].map(self.label_to_id)
+      data_for_prediction = Dataset.from_pandas(data_for_prediction)
+      data_for_prediction = Dataset.from_pandas(data_for_prediction)
+      
     # Apply the trained model on val_data
-    predictions = self.trainer.predict(self.val_data)
+    predictions = self.trainer.predict(data_for_prediction)
     preds = predictions.predictions.argmax(-1)
     labels = predictions.label_ids
-
+    
     predictions_df = pd.DataFrame({
+        "x": self.val_data_x_column,
         "predictions": preds,
         "labels": labels
     })
+    
+    # Convert the ids back to labels
+    predictions_df["predictions"] = predictions_df["predictions"].map(self.id_to_label)
+    predictions_df["labels"] = predictions_df["labels"].map(self.id_to_label)
+    
     predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
     
     accuracy_per_label = predictions_df.groupby("labels").apply(lambda g: (g["predictions"] == g["labels"]).mean())
     accuracy_df = accuracy_per_label.reset_index()
     accuracy_df.columns = ["label", "accuracy"]
     accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
+    
+    get_bad_predictions(
+      model_name=self.name,
+      dataset_name=self.dataset_name,
+      predictions_df=predictions_df
+    )
+    
+    return predictions_df
+    
     
 

@@ -13,11 +13,11 @@ class MetaP(Parameters):
   REPORT_DIR: str = 'report'
   STAT_MODELS_DIR: str = 'models/stat_models'
   MODELS_DIR: str = 'models'
+  MODELS_USER_TESTING_DIR: str = 'models/user_testing'
   VERBOSE: bool = True
   MULTICLASS_OUTPUT_DIR: str = './models/distilbert-finetuned'
   MULTICLASS_OUTPUT_CHECKPOINT_DIR: str = './models/distilbert-finetuned/checkpoint-168'
   Y_TRUE_GROUPING_FILENAME: str = './src/data/y_true_grouping.xlsx'
-  DO_PARSE_ARGS: bool = False
   ANTHROPIC_API_KEY: str = None
 
 
@@ -89,31 +89,28 @@ class HyperP(Parameters):
   
 class CMDArgs(Parameters):
   TARGET: str = ['seniority', 'work_arr']
-  FILE = {
-    'seniority': './data/seniority_labelled_test_set.csv',
-    'work_arr': './data/work_arrangements_test_sets.csv',
-  }
+  FILE: str = None
   STAT: bool = False
   
   @classmethod
   def parse_args(cls, args: argparse.Namespace) -> None:
-    if args.stat:
-      print('Running statistical models...')
-      cls.STAT = True
-    else:
-      print('Running non-statistical models...')
-      cls.STAT = False
-    
-    if args.target is None:
-      cls.TARGET = 'seniority'
-      print('No target specified. Running "seniority"...')
-    else:
-      cls.TARGET = args.target
-      print(f"Running target: {cls.TARGET}")
-    
     if args.file is None:
-      cls.FILE = cls.FILE[cls.TARGET]
-      print(f'No input file specified. Using default test data {cls.FILE}...')
+      print('No file specified. Will run normal sequence')
     else:
       cls.FILE = args.file
       print(f"Will apply model to file: {cls.FILE}")
+      
+      if args.stat:
+        print('Running statistical model...')
+        cls.STAT = True
+      else:
+        print('Running fine-tuned model...')
+        cls.STAT = False
+      
+      if args.target is None:
+        cls.TARGET = 'seniority'
+        print('No target specified. Running "seniority" model...')
+      else:
+        cls.TARGET = args.target
+        print(f"Predicting target: {cls.TARGET}")
+    

@@ -137,7 +137,7 @@ def _salary_amount_rule_based(salary_dev: pd.DataFrame) -> None:
   return salaries
 
 
-def _salary_rule_based(salary_dev: pd.DataFrame) -> None:
+def salary_rule_based(salary_dev: pd.DataFrame) -> None:
   """Predict the salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the salary from.
@@ -222,15 +222,19 @@ def _salary_rule_based(salary_dev: pd.DataFrame) -> None:
     index=True
   )
 
-  salary_dev[['y_true_salary_min', 'y_true_salary_max', 'y_true_currency', 'y_true_frequency', 'y_true', \
-    'y_pred_salary_min', 'y_pred_salary_max', 'y_pred_currency', 'y_pred_frequency', 'y_pred']].to_csv(
+  for_output = salary_dev[['y_true_salary_min', 'y_true_salary_max', 'y_true_currency', 'y_true_frequency', 'y_true', \
+    'y_pred_salary_min', 'y_pred_salary_max', 'y_pred_currency', 'y_pred_frequency', 'y_pred']]
+  
+  for_output.to_csv(
     os.path.join(MetaP.STAT_MODELS_DIR, f'salary_rule_based_predictions.csv'),
     index=False
   )
+    
+  return for_output
 
   
 def stat_model_salary(salary_dev: pd.DataFrame) -> None:
-  _salary_rule_based(salary_dev)
+  salary_rule_based(salary_dev)
   
 
 if __name__ == '__main__':

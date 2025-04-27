@@ -14,7 +14,7 @@ def _get_stat_model_seniority(seniority_text: str) -> None:
   return HyperP.SENIORITY_DEFAULT
 
 
-def _seniority_rule_based(seniority_dev: pd.DataFrame, do_group: bool=False) -> None:
+def seniority_rule_based(seniority_dev: pd.DataFrame, do_group: bool=False) -> None:
   """Predict the frequency of salary based on the text.
   Args:
     salary_dev (pd.DataFrame): The full dev dataset to predict the frequency from.
@@ -33,7 +33,8 @@ def _seniority_rule_based(seniority_dev: pd.DataFrame, do_group: bool=False) -> 
   else:
     seniority_dev['actual'] = seniority_dev['y_true']
   
-  seniority_dev['correct'] = predictions == seniority_dev['actual']
+  seniority_dev['pred'] = predictions
+  seniority_dev['correct'] = seniority_dev['pred'] == seniority_dev['actual']
   accuracy_by_seniority = seniority_dev.groupby('actual').agg(
     count=('actual', 'size'),
     sum=('correct', 'sum'),
@@ -55,8 +56,8 @@ def _seniority_rule_based(seniority_dev: pd.DataFrame, do_group: bool=False) -> 
 
 def stat_model_seniority(seniority_dev: pd.DataFrame) -> None:
   stat_model_classifier(seniority_dev, 'seniority')
-  _seniority_rule_based(seniority_dev, do_group=False)
-  _seniority_rule_based(seniority_dev, do_group=True)
+  seniority_rule_based(seniority_dev, do_group=False)
+  seniority_rule_based(seniority_dev, do_group=True)
   
 
 if __name__ == '__main__':

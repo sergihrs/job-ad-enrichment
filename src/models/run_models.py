@@ -20,7 +20,7 @@ def get_bad_predictions(
   bad_predictions = validation_data[validation_data['y_true_grouped'] != predictions['y_pred']].head(5)
   bad_predictions.to_csv(f'bad_predictions_{model_name}.csv', index=False)
 
-def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
+def run_claude_haiku(data: dict[pd.DataFrame]) -> None:
   print('Running Claude Haiku model...')
       
   try:
@@ -41,7 +41,7 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
     return
 
 
-def _run_bert(data: dict[pd.DataFrame]) -> None:
+def run_bert(data: dict[pd.DataFrame]) -> None:
   """
   Train the BERT model on the given datasets.
   """
@@ -59,7 +59,10 @@ def _run_bert(data: dict[pd.DataFrame]) -> None:
   
 
 
-def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
+def run_facebook_opt359m(
+  data: dict[pd.DataFrame],
+  test_data: pd.DataFrame=None,
+) -> None:
   """
   Train the Facebook Opt 350m model on the given datasets.
   """
@@ -73,6 +76,9 @@ def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
     model.setup_and_train()
     model.save_model()
     model.predict()
+  
+  if test_data is not None:
+    return model.predict(test_data)
 
 
 def run_stat_models(data: dict[pd.DataFrame]) -> None:
@@ -82,11 +88,11 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
-  _run_bert(data)
-  # _run_facebook_opt359m(data)
+  run_bert(data)
+  # run_facebook_opt359m(data)
   
 def run_proprietary_models(data: dict[pd.DataFrame]) -> None:
-  # _run_claude_haiku(data)
+  # run_claude_haiku(data)
   pass
 
 if __name__ == '__main__':
