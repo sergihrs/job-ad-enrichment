@@ -45,7 +45,7 @@ def _run_bert(data: dict[pd.DataFrame]) -> None:
     model = BERTModel(dataset_name, train_data=train_data, val_data=test_data)
     model.setup_and_train()
     model.save_model()
-    model.predict(test_data)
+    model.predict()
   
   
 
@@ -63,7 +63,7 @@ def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
     model = FacebookOpt350mModel(dataset_name, train_data=train_data, val_data=test_data)
     model.setup_and_train()
     model.save_model()
-    model.predict(test_data)
+    model.predict()
 
 
 def run_stat_models(data: dict[pd.DataFrame]) -> None:
@@ -73,8 +73,10 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
-  _run_facebook_opt359m(data)
   _run_bert(data)
+  _run_facebook_opt359m(data)
+  
+def run_proprietary_models(data: dict[pd.DataFrame]) -> None:
   _run_claude_haiku(data)
 
 if __name__ == '__main__':

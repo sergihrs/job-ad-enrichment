@@ -1,6 +1,6 @@
 from src.data.data import load_data, preprocess_data
 from src.EDA import conduct_EDA
-from src.models.run_models import run_stat_models, run_fine_tuned_models
+from src.models.run_models import run_stat_models, run_fine_tuned_models, run_proprietary_models
 from src.ancillary_functions import setup
 from src.config import MetaP, CMDArgs
 
@@ -19,6 +19,7 @@ def main():
     conduct_EDA(the_data)
     run_stat_models(the_data)
     run_fine_tuned_models(the_data)
+    run_proprietary_models(the_data)
   
   
 if __name__ == '__main__':
