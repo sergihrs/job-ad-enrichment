@@ -1,6 +1,7 @@
 import os
 import argparse
 from src.config import MetaP, CMDArgs
+import pandas as pd
 
 print('Importing Anthropic. Could take some time...')
 from anthropic import Anthropic

@@ -138,6 +138,6 @@ class BERTModel:
     accuracy_df.columns = ["label", "accuracy"]
     accuracy_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_accuracy.csv'), index=False)
     
-    get_bad_predictions(self.name, self.val_data, predictions)
+    get_bad_predictions(self.name, self.val_data.to_pandas(), predictions)
     
 
