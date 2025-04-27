@@ -8,6 +8,7 @@ Group Name: BuffaloedBuffaloes
 
 Team Members
 Jack Reardon	z5550923
-Sergio Herreros Perez	z5550923
-Daniel Sanchez Sanchez	z1234567
+Sergio Herreros Perez	z5625040
+Daniel Sanchez Sanchez z5625041
+
 
