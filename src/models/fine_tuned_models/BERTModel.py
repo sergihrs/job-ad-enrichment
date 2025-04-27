@@ -129,7 +129,7 @@ class BERTModel:
     labels = predictions.label_ids
 
     predictions_df = pd.DataFrame({
-        "x": self.val_data_y_column,
+        "x": self.val_data_x_column,
         "predictions": preds,
         "labels": labels
     })
