@@ -16,6 +16,8 @@ def _run_all(data):
   # run_proprietary_models(data)
   
 def _run_one(data):
+  print('TESTDATA:')
+  print(data['test_data'])
   if CMDArgs.STAT:
     if CMDArgs.TARGET == 'seniority':
       print('Running seniority statistical model...')

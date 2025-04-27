@@ -67,6 +67,8 @@ def run_facebook_opt359m(
   """
   Train the Facebook Opt 350m model on the given datasets.
   """
+  print('TESTDATA:')
+  print(test_data)
   
   print('Running Facebook Opt 350m model...')
   for dataset_name, (train_data_name, test_data_name) in HyperP.DATASETS_FOR_FINE_TUNED_MODELS.items():
@@ -82,6 +84,8 @@ def run_facebook_opt359m(
     model.predict()
   
     if test_data is not None:
+      print('TESTDATA:')
+      print(test_data)
       return model.predict(test_data)
 
 
