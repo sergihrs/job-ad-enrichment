@@ -18,11 +18,6 @@ class MetaP(Parameters):
   MULTICLASS_OUTPUT_CHECKPOINT_DIR: str = './models/distilbert-finetuned/checkpoint-168'
   Y_TRUE_GROUPING_FILENAME: str = './src/data/y_true_grouping.xlsx'
   DO_PARSE_ARGS: bool = False
-  DATASETS_FOR_LLMS: dict[tuple[str, str]] = {
-    'work_arr': ('work_arr_dev', 'work_arr_test'),
-    'seniority': ('seniority_dev', 'seniority_test'),
-    'salary': ('salary_dev', 'salary_test'),
-  }
   ANTHROPIC_API_KEY: str = None
 
 
@@ -73,14 +68,22 @@ class HyperP(Parameters):
     'classification_name',
     'subclassification_name'
   ]
-  CLAUDE_PROMPT_STARTS: dict[str] = {
-    'work_arr': "Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only",
-    'seniority': "Classify the following text as either 'junior', 'mid-level' or 'senior'. Respond with one word only",
-    'salary': "Parse the following job ad into the following format: MIN_PAY-MAX_PAY-CURRENCY-FREQUENCY. Respond in exactly this format. If the job ad does not contain a salary, respond with '0-0-None-None'",
+  DATASETS_FOR_FINE_TUNED_MODELS: dict[tuple[str, str]] = {
+    'work_arr': ('work_arr_dev', 'work_arr_test'),
+    'seniority': ('seniority_dev', 'seniority_test'),
+  }
+  DATASETS_AND_PROMPTS_FOR_CLAUDE_MODELS: dict[str, tuple[str, str]] = {
+    'work_arr': ('work_arr_test', "Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only"),
+    'seniority': ('seniority_test', "Classify the following text as either 'junior', 'mid-level' or 'senior'. Respond with one word only"),
+    'salary': ('salary_test', "Parse the following job ad into the following format: MIN_PAY-MAX_PAY-CURRENCY-FREQUENCY. Respond in exactly this format. If the job ad does not contain a salary, respond with '0-0-None-None'"),
   }
   FACEBOOK_OPT350M_PROMPTS: dict[str] = {
     'work_arr': 'Work Arrangement',
     'seniority': 'Seniority',
+  }
+  BERT_PROMPTS: dict[str] = {
+    'work_arr': '',
+    'seniority': '',
   }
   MAX_TRAINING_STEPS: int = 100
   

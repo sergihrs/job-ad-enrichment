@@ -36,9 +36,9 @@ class BERTModel:
     return len(self.label_to_id)
   
   def _get_prompt_start_and_end(self) -> None:
-    text = HyperP.FACEBOOK_OPT350M_PROMPTS[self.dataset_name]
-    self.prompt_start = f'What is the {text.lower()} of this Job?\Job: '
-    self.prompt_end = f'\{text}: '
+    text = HyperP.BERT_PROMPTS[self.dataset_name]
+    self.prompt_start = text
+    self.prompt_end = ''
     
   def _get_data(self, train_data: pd.DataFrame, val_data: pd.DataFrame) -> None:    
     train_data = train_data[[self.x_column_name, self.y_column_name]].copy()
@@ -71,7 +71,7 @@ class BERTModel:
     
   def _preprocess_inputs(self) -> dict:
     def preprocess(input: Dataset) -> dict:
-      prompt = f'{self.prompt_start}{input["job_ad_details"]}{{self.prompt_end}}'
+      prompt = f'{self.prompt_start}{input["job_ad_details"]}{self.prompt_end}'
 
       tokenised = self.tokeniser(prompt, padding='max_length', truncation=True, max_length=128)
       tokenised['label'] = input['label']

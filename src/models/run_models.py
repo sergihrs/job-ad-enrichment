@@ -14,13 +14,11 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
       
   try:
     client = connect_to_anthropic()
-    for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
+    for dataset_name, (test_data_name, prompt_start) in MetaP.DATASETS_AND_PROMPTS_FOR_CLAUDE_MODELS.items():
       print(f'Running Claude Haiku model for {dataset_name}...')
       
       # Only testing data for this Claude model
       test_data = data[test_data_name]
-      
-      prompt_start = HyperP.CLAUDE_PROMPT_STARTS[dataset_name]
       
       model = ClaudeHaikuModel(dataset_name, client, prompt_start)
       model.setup_and_train()
@@ -38,7 +36,7 @@ def _run_bert(data: dict[pd.DataFrame]) -> None:
   """
   print('Running BERT model...')
   
-  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
+  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_FINE_TUNED_MODELS.items():
     train_data = data[train_data_name]
     test_data = data[test_data_name]
     
@@ -56,7 +54,7 @@ def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
   """
   
   print('Running Facebook Opt 350m model...')
-  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
+  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_FINE_TUNED_MODELS.items():
     train_data = data[train_data_name]
     test_data = data[test_data_name]
     
