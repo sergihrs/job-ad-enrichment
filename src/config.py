@@ -22,6 +22,8 @@ class MetaP(Parameters):
     'work_arr': ('work_arr_dev', 'work_arr_test'),
     'seniority': ('seniority_dev', 'seniority_test'),
   }
+  CLAUDE_SENIORITY_PROMPT_START: str = "Classify the following text as either 'junior', 'mid-level' or 'senior'. Respond with one word only"
+  CLAUDE_WORK_ARR_PROMPT_START: str = "Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only"
   ANTHROPIC_API_KEY: str = None
 
 

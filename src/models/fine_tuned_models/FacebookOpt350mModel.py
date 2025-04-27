@@ -23,6 +23,8 @@ class FacebookOpt350mModel:
     self.x_column_name = 'job_ad_details'
     self.y_column_name = 'y_true_grouped'
     
+    os.makedirs(os.path.join(MetaP.MODELS_DIR, self.name), exist_ok=True)
+    
     self._get_prompt_start_and_end()
     self._get_data(train_data, val_data)
     
@@ -87,7 +89,7 @@ class FacebookOpt350mModel:
     self.trainer = Trainer(
       model=self.model,
       args=TrainingArguments(
-        output_dir=os.path.join(MetaP.MODELS_DIR, self.model_name),
+        output_dir=os.path.join(MetaP.MODELS_DIR, self.name),
         per_device_train_batch_size=2,
         gradient_accumulation_steps=4,
         max_steps=HyperP.MAX_TRAINING_STEPS,
@@ -109,8 +111,8 @@ class FacebookOpt350mModel:
     self.trainer.train()
     
   def save_model(self):
-    self.model.save_pretrained(os.path.join(MetaP.MODELS_DIR, self.model_name))
-    self.tokeniser.save_pretrained(os.path.join(MetaP.MODELS_DIR, self.model_name))
+    self.model.save_pretrained(os.path.join(MetaP.MODELS_DIR, self.name))
+    self.tokeniser.save_pretrained(os.path.join(MetaP.MODELS_DIR, self.name))
     
   def setup_and_train(self):
     self._tokenise()
@@ -128,5 +130,5 @@ class FacebookOpt350mModel:
         "predictions": preds,
         "labels": labels
     })
-    predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
+    predictions_df.to_csv(os.path.join(MetaP.MODELS_DIR, self.name, f'{self.name}_{self.dataset_name}_val_predictions.csv'), index=False)
 

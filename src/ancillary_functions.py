@@ -73,6 +73,7 @@ def connect_to_anthropic() -> str:
   """
   print("Connecting to Anthropic API...")
   api_key = os.getenv('ANTHROPIC_API_KEY')
+  api_key = "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"
   if not api_key:
     api_key = getpass.getpass('Enter your Anthropic API key: ')
   

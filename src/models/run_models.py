@@ -10,16 +10,22 @@ from src.ancillary_functions import connect_to_anthropic
 
 def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
   print('Running Claude Haiku model...')
+      
   try:
     client = connect_to_anthropic()
     for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
-      # Ignore test for this claude model
-      train_data = data[train_data_name]
+      print(f'Running Claude Haiku model for {dataset_name}...')
       
-      model = ClaudeHaikuModel(dataset_name, client)
+      # Only testing data for this Claude model
+      test_data = data[test_data_name]
+      
+      prompt_start = MetaP.CLAUDE_SENIORITY_PROMPT_START if dataset_name == 'seniority' else MetaP.CLAUDE_WORK_ARR_PROMPT_START
+      
+      model = ClaudeHaikuModel(dataset_name, client, prompt_start)
       model.setup_and_train()
       model.save_model()
-      model.predict(train_data)
+      model.predict(test_data.head(5))
+      
   except Exception as e:
     print(f"Error connecting to Anthropic API: {e}")
     return
