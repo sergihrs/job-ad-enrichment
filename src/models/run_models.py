@@ -76,9 +76,9 @@ def run_facebook_opt359m(
       continue
     
     train_data = data[train_data_name]
-    test_data = data[test_data_name]
+    val_data = data[test_data_name]
     
-    model = FacebookOpt350mModel(dataset_name, train_data=train_data, val_data=test_data)
+    model = FacebookOpt350mModel(dataset_name, train_data=train_data, val_data=val_data)
     model.setup_and_train()
     model.save_model()
     model.predict()
