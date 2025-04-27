@@ -3,6 +3,7 @@ from src.models.stat_models.stat_model_salary import stat_model_salary
 from src.models.stat_models.stat_model_work_arr import stat_model_work_arr
 from src.models.stat_models.stat_model_seniority import stat_model_seniority
 from src.models.fine_tuned_models.FacebookOpt350mModel import FacebookOpt350mModel
+from src.models.fine_tuned_models.BERTModel import BERTModel
 from src.models.proprietary_models.ClaudeHaikuModel import ClaudeHaikuModel
 from src.config import MetaP
 from src.ancillary_functions import connect_to_anthropic
@@ -29,7 +30,22 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
   except Exception as e:
     print(f"Error connecting to Anthropic API: {e}")
     return
+
+
+def __run_bert(data: dict[pd.DataFrame]) -> None:
+  """
+  Train the BERT model on the given datasets.
+  """
+  print('Running BERT model...')
   
+  for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
+    train_data = data[train_data_name]
+    test_data = data[test_data_name]
+    
+    model = BERTModel(dataset_name, train_data=train_data, val_data=test_data)
+    model.setup_and_train()
+    model.save_model()
+    model.predict(test_data)
   
   
 
@@ -58,6 +74,7 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
   _run_facebook_opt359m(data)
+  _run_bert(data)
   _run_claude_haiku(data)
 
 if __name__ == '__main__':
