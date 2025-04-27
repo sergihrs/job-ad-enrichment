@@ -2,6 +2,7 @@ import os
 import argparse
 from src.config import MetaP, CMDArgs
 import pandas as pd
+import numpy as np
 
 print('Importing Anthropic. Could take some time...')
 from anthropic import Anthropic
@@ -23,9 +24,9 @@ def get_bad_predictions(
   print(predictions_df['predictions'])
   print(predictions_df['labels'] != predictions_df['predictions'])
   print(predictions_df['labels'][predictions_df['labels'] != predictions_df['predictions']])
-  print(type(predictions_df['labels'][predictions_df['labels'] != predictions_df['predictions']]))
+  print(type(predictions_df['labels'][np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])]))
   
-  bad_predictions = x_field[predictions_df['labels'] != predictions_df['predictions']].head(5)
+  bad_predictions = predictions_df['labels'][np.array(predictions_df['labels']) != np.array(predictions_df['predictions'])].head(5)
   bad_predictions.to_csv(os.path.join(MetaP.MODELS_DIR, model_name, f'bad_predictions_{model_name}.csv'), index=False)
 
 def verify_file(file_path) -> None:
