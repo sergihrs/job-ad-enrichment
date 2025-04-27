@@ -132,7 +132,6 @@ class FacebookOpt350mModel:
       data_for_prediction = test_data[[self.x_column_name, self.y_column_name]].copy()
       data_for_prediction['label'] = data_for_prediction[self.y_column_name].map(self.label_to_id)
       data_for_prediction = Dataset.from_pandas(data_for_prediction)
-      data_for_prediction = Dataset.from_pandas(data_for_prediction)
       
     # Apply the trained model on val_data
     predictions = self.trainer.predict(data_for_prediction)
