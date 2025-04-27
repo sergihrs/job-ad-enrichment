@@ -92,11 +92,10 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
   run_bert(data)
-  # run_facebook_opt359m(data)
+  run_facebook_opt359m(data)
   
 def run_proprietary_models(data: dict[pd.DataFrame]) -> None:
-  # run_claude_haiku(data)
-  pass
+  run_claude_haiku(data)
 
 if __name__ == '__main__':
   pass

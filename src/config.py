@@ -85,7 +85,7 @@ class HyperP(Parameters):
     'work_arr': '',
     'seniority': '',
   }
-  MAX_TRAINING_STEPS: int = 1
+  MAX_TRAINING_STEPS: int = 100
   
 class CMDArgs(Parameters):
   TARGET: str = ['seniority', 'work_arr']
