@@ -55,8 +55,8 @@ class BERTModel:
     self.val_data = Dataset.from_pandas(val_data)
     
   def _tokenise(self):
-    self.train_data = self.train_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), padding='max_length', batched=True)
-    self.val_data = self.val_data.map(lambda samples: self.tokeniser(samples[self.x_column_name]), padding='max_length', batched=True)
+    self.train_data = self.train_data.map(lambda samples: self.tokeniser(samples[self.x_column_name], padding='max_length', truncation=True), batched=True)
+    self.val_data = self.val_data.map(lambda samples: self.tokeniser(samples[self.x_column_name], padding='max_length', truncation=True), batched=True)
     
   def _set_peft_model(self):
     self.peft_config = LoraConfig(

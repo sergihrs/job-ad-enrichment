@@ -32,7 +32,7 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
     return
 
 
-def __run_bert(data: dict[pd.DataFrame]) -> None:
+def _run_bert(data: dict[pd.DataFrame]) -> None:
   """
   Train the BERT model on the given datasets.
   """
