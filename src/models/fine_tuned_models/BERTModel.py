@@ -142,7 +142,7 @@ class BERTModel:
     get_bad_predictions(
       model_name=self.name,
       x_field=self.val_data_y_column,
-      predictions=predictions_df
+      predictions_df=predictions_df
     )
     
 
