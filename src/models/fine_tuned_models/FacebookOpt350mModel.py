@@ -127,8 +127,10 @@ class FacebookOpt350mModel:
     test_data: pd.DataFrame=None,
   ) -> pd.DataFrame:
     if test_data is None:
+      print('Running prediction on validation data...')
       data_for_prediction = self.val_data
     else:
+      print('Running prediction on test data...')
       data_for_prediction = test_data[[self.x_column_name, self.y_column_name]].copy()
       data_for_prediction['label'] = data_for_prediction[self.y_column_name].map(self.label_to_id)
       data_for_prediction = Dataset.from_pandas(data_for_prediction)

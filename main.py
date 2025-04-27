@@ -29,10 +29,10 @@ def _run_one(data):
   else:
     if CMDArgs.TARGET == 'seniority':
       print('Running seniority fine-tuned model...')
-      outcome = run_facebook_opt359m(data, data['test_data'], model_name='seniority')
+      outcome = run_facebook_opt359m(data=data, test_data=data['test_data'], model_name='seniority')
     elif CMDArgs.TARGET == 'work_arr':
       print('Running work_arr fine-tuned model...')
-      outcome = run_facebook_opt359m(data, data['test_data'], model_name='work_arr')
+      outcome = run_facebook_opt359m(data=data, test_data=data['test_data'], model_name='work_arr')
     else:
       print(f'Fine tuned mode for {CMDArgs.TARGET} not supported yet')
       outcome = None
