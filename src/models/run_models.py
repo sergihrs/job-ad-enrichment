@@ -16,7 +16,7 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
       # Ignore test for this claude model
       train_data = data[train_data_name]
       
-      model = ClaudeHaikuModel(dataset_name, train_data, client)
+      model = ClaudeHaikuModel(dataset_name, client)
       model.setup_and_train()
       model.save_model()
       model.predict(train_data)

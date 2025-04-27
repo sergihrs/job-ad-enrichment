@@ -13,16 +13,14 @@ class ClaudeHaikuModel:
     self.dataset_name = dataset_name
     self.x_column_name = 'job_ad_details'
     self.y_column_name = 'y_true_grouped'
-    
-    self._get_prompts()
     self.client = client
     
   @property
   def n_labels(self) -> int:
     return len(self.label_to_id)
   
-  def _get_prompts(self, input: pd.DataFrame) -> None:
-    job_ads = list(input[self.x_column_name])
+  def _get_prompts(self, inputs: pd.DataFrame) -> None:
+    job_ads = list(inputs[self.x_column_name])
     prompts = ["Classify the following text as either 'remote', 'onsite' or 'hybrid'. Respond with one word only:\n" + job_ad + "'\nAnswer:" for job_ad in job_ads]
     prompts_df = pd.DataFrame({'prompt': prompts})
     return prompts_df
@@ -43,7 +41,7 @@ class ClaudeHaikuModel:
     # No post-processing is needed, as the model already returns the predictions.
     return response
     
-  def predict(self, input: pd.DataFrame) -> pd.DataFrame:
+  def predict(self, inputs: pd.DataFrame) -> pd.DataFrame:
     def query_claude(prompt):
       response = self.client.messages.create(
           model="claude-3-5-haiku-latest",  # change model as needed
@@ -52,7 +50,7 @@ class ClaudeHaikuModel:
       )
       return response.content[0].text
 
-    prompt_data = self._get_prompts(input)
+    prompt_data = self._get_prompts(inputs)
     response = prompt_data.apply(query_claude)
     predictions = self._get_predictions(response)
     # Apply the trained model on val_data
