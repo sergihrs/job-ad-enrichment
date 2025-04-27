@@ -84,9 +84,6 @@ def connect_to_anthropic() -> str:
           {"role": "user", "content": "Hello?"}
       ]
   )
-
-  
-  print("Connected to Anthropic API.")
   
   return client
     

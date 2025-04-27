@@ -46,7 +46,7 @@ def run_stat_models(data: dict[pd.DataFrame]) -> None:
 
 
 def run_fine_tuned_models(data: dict[pd.DataFrame]) -> None:
-  _run_facebook_opt359m(data)
+  # _run_facebook_opt359m(data)
   _run_claude_haiku(data)
 
 if __name__ == '__main__':
