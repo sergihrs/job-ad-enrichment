@@ -9,6 +9,7 @@ from src.ancillary_functions import connect_to_anthropic
 
 
 def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
+  print('Running Claude Haiku model...')
   try:
     client = connect_to_anthropic()
     for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
@@ -28,8 +29,10 @@ def _run_claude_haiku(data: dict[pd.DataFrame]) -> None:
 
 def _run_facebook_opt359m(data: dict[pd.DataFrame]) -> None:
   """
-  Train the claude_3_5_haiku model.
+  Train the Facebook Opt 350m model on the given datasets.
   """
+  
+  print('Running Facebook Opt 350m model...')
   for dataset_name, (train_data_name, test_data_name) in MetaP.DATASETS_FOR_LLMS.items():
     train_data = data[train_data_name]
     test_data = data[test_data_name]
