@@ -21,3 +21,5 @@ python -m main
 ```
   
 in your terminal from you project root folder. This will run all code: data load, preprocessing, EDA, model training, testing, and saving of results (See main() function in main.py.)
+
+If cloning from GitHub, use branch 'develop'
