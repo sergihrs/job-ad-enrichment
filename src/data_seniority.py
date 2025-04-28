@@ -2,7 +2,7 @@ from datasets import load_dataset
 import pandas as pd
 import os
 from datasets import DatasetDict, Dataset
-
+from transformers import AutoTokenizer
 
 DATA_PATH = "data/"
 
@@ -42,8 +42,23 @@ def preprocess_seniority():
     )
 
     # Filter columns with less than 8 occurrences
-    df_train["value_count"] = df_train["y_true"].map(df_train["y_true"].value_counts())
-    df_train = df_train[df_train["value_count"] >= 8]
+    # df_train["value_count"] = df_train["y_true"].map(df_train["y_true"].value_counts())
+    # df_train = df_train[df_train["value_count"] >= 10]
+
+    # df_test["value_count"] = df_test["y_true"].map(df_test["y_true"].value_counts())
+    # df_test = df_test[df_test["value_count"] >= 10]
+
+    df_train = df_train[
+        df_train["y_true"].isin(
+            ["experienced", "intermediate", "senior", "entry level"]
+        )
+    ]
+    df_test = df_test[
+        df_test["y_true"].isin(["experienced", "intermediate", "senior", "entry level"])
+    ]
+
+    # Get the set of unique labels from the train and test datasets
+    unique_labels = set(df_train["y_true"].unique()) | set(df_test["y_true"].unique())
 
     # Merge all text inputs into one column
     merge_text = lambda x: (
@@ -56,6 +71,9 @@ def preprocess_seniority():
         + x["classification_name"]
         + ". "
         + x["subclassification_name"]
+        + ". "
+        # + " ,".join(unique_labels)
+        + " experienced, intermediate, senior, entry level"
     )
     df_train["job_text"] = df_train.apply(merge_text, axis=1)
     df_test["job_text"] = df_test.apply(merge_text, axis=1)
@@ -63,11 +81,8 @@ def preprocess_seniority():
     # Save to csv files. Only text and y_true
     df_train = df_train[["job_text", "y_true"]]
     df_test = df_test[["job_text", "y_true"]]
-    # df_train.rename(columns={"y_true": "labels"}, inplace=True)
-    # df_test.rename(columns={"y_true": "labels"}, inplace=True)
 
     # Add a new column "labels" with the integer values of the unique labels (use both train and test)
-    unique_labels = set(df_train["y_true"].unique()) | set(df_test["y_true"].unique())
     label_to_id = {label: i for i, label in enumerate(unique_labels)}
     id_to_label = {i: label for label, i in label_to_id.items()}
     df_train["labels"] = df_train["y_true"].map(label_to_id)
@@ -114,12 +129,22 @@ if __name__ == "__main__":
     preprocess_seniority()
 
     # Load the dataset
-    train_dataset, test_dataset = load_data_mc("seniority")
+    train_dataset, test_dataset, _, _ = load_data_mc("seniority")
     print("Train dataset:", train_dataset)
     print("Test dataset:", test_dataset)
+
+    # Tokenize the datasets
+    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
     #  Iterate over the train dataset and print the first 5 samples
     for i, sample in enumerate(train_dataset):
         print(f"Sample {i}: {sample}")
+        tokenized_sample = tokenizer(
+            sample["job_text"], truncation=True, padding="max_length"
+        )
+        # print(f"Tokenized Sample {i}: {tokenized_sample}")
+        print(
+            f"Tokens: {[tokenizer.decode(token) for token in tokenized_sample['input_ids']]}"
+        )
         if i == 4:
             break
