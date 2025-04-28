@@ -6,7 +6,7 @@ import torch
 
 def main():
     dataset = CSVDataset(
-        "data/seniority_train.csv", text_col="job_text", label_col="labels"
+        "data/seniority_train.csv", text_col="job_text", label_col="y_true"
     )
     print(f"Dataset loaded. Size: {len(dataset)}")
 
@@ -21,7 +21,7 @@ def main():
         dataset,
         device="cuda" if torch.cuda.is_available() else "cpu",
         epochs=3,
-        batch_size=128,
+        batch_size=16,
         lr=2e-5,
     )
 
