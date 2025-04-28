@@ -1,8 +1,14 @@
 # Own
-data/
+/data/
+!/src/data/
 logs/
 models/
 ideas.*
+*.bat
+*.csv
+*.png
+.vscode
+admin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
