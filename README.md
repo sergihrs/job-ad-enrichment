@@ -7,8 +7,17 @@ Generative AI for Job Ad Enrichment:  use large, pre-trained, generative languag
 Group Name: BuffaloedBuffaloes
 
 Team Members
-Jack Reardon	z5550923
-Sergio Herreros Perez	z5625040
+Jack Reardon z5550923
+Sergio Herreros Perez z5625040
 Daniel Sanchez Sanchez z5625041
 
 
+### To run
+
+First ensure you save all project csv data files to folder `./data/`. Ensure all packages in `requirements.txt` are installed (either globally or in a venv), then run:
+
+```bash
+python -m main
+```
+  
+in your terminal from you project root folder. This will run all code: data load, preprocessing, EDA, model training, testing, and saving of results (See main() function in main.py.)
